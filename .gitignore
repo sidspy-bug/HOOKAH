@@ -1,0 +1,10 @@
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+app.log
+
+# Dependency directories
+bower_components/
