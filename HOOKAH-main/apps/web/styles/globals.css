@@ -1,0 +1,264 @@
+:root {
+  color-scheme: light;
+  --bg: #f6f7fb;
+  --text: #0f172a;
+  --muted: #5b6477;
+  --line: #e3e7f0;
+  --surface: #ffffff;
+  --surface-soft: #f8f9fd;
+  --orange: #ff5a1f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+h1,
+p {
+  margin: 0;
+}
+
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 58px 1fr;
+}
+
+.leftRail {
+  border-right: 1px solid var(--line);
+  background: #f1f3f8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.railBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #4e5568;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.railBtn:hover {
+  background: #e8ebf3;
+  transform: translateY(-1px);
+}
+
+.appMain {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.topNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+}
+
+.brand {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.topLinks {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topLinks a,
+.topLinks button {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: #1c2233;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.92rem;
+  text-decoration: none;
+}
+
+.topLinks a:hover {
+  background: #f7f8fc;
+}
+
+.cta {
+  border-color: #ff6e3b !important;
+  background: linear-gradient(180deg, #ff6b2d, var(--orange)) !important;
+  color: #fff !important;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.centerStage {
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+  padding: clamp(28px, 8vh, 92px) 20px 40px;
+  text-align: center;
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.logoMark {
+  color: #2ea5cf;
+  font-size: 1.2rem;
+}
+
+h1 {
+  font-size: clamp(1.95rem, 4.2vw, 3.1rem);
+  letter-spacing: -0.02em;
+}
+
+.subtext {
+  color: var(--muted);
+  font-size: 1.15rem;
+}
+
+.promptCard {
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  text-align: left;
+  box-shadow: 0 18px 40px rgba(15, 26, 62, 0.08);
+  overflow: hidden;
+}
+
+.promptCard textarea {
+  width: 100%;
+  min-height: 190px;
+  border: 0;
+  padding: 20px 18px;
+  font: inherit;
+  font-size: 1.8rem;
+  line-height: 1.3;
+  color: #1c2539;
+  resize: vertical;
+}
+
+.promptCard textarea:focus {
+  outline: none;
+}
+
+.promptFooter {
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 10px 10px 12px;
+}
+
+.leftControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iconBtn,
+.softBtn,
+.chip,
+.sendBtn {
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  border-radius: 10px;
+  font: inherit;
+  color: #202a3f;
+  transition: transform 170ms ease, box-shadow 170ms ease, background 170ms ease;
+}
+
+.iconBtn {
+  width: 38px;
+  height: 36px;
+  cursor: pointer;
+}
+
+.softBtn {
+  height: 36px;
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+.sendBtn {
+  width: 40px;
+  height: 36px;
+  border-color: #ff6e3b;
+  background: var(--orange);
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.iconBtn:hover,
+.softBtn:hover,
+.chip:hover,
+.sendBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+.actionRow {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.chip {
+  height: 38px;
+  padding: 0 14px;
+  cursor: pointer;
+}
+
+@media (max-width: 860px) {
+  .topLinks a:nth-child(1),
+  .topLinks a:nth-child(2) {
+    display: none;
+  }
+
+  .promptCard textarea {
+    min-height: 150px;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 620px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .leftRail {
+    display: none;
+  }
+
+  .topNav {
+    padding: 12px;
+  }
+
+  .topLinks {
+    gap: 6px;
+  }
+
+  .topLinks a,
+  .topLinks button {
+    padding: 7px 10px;
+    font-size: 0.83rem;
+  }
+}

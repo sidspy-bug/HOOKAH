@@ -1,0 +1,56 @@
+{
+  "topic": "AI assistants for student mental health support",
+  "normalized_keywords": ["longitudinal", "fairness", "explainability"],
+  "analyzed_papers": [
+    {
+      "paper_id": "P-005",
+      "title": "Deploying AI Mental Health Assistants in University Settings",
+      "domain": "health-ai",
+      "year": 2024,
+      "abstract": "Reports pilot deployment of AI support assistants for student well-being.",
+      "methods": ["intent routing", "risk escalation pipeline"],
+      "findings": "Engagement improved in early weeks but dropped over time.",
+      "limitations": [
+        "Limited follow-up prevents understanding long-term safety outcomes.",
+        "Intervention effects may differ across cultural contexts."
+      ]
+    }
+  ],
+  "extracted_limitations": [
+    "Limited follow-up prevents understanding long-term safety outcomes.",
+    "Future work: Perform longitudinal safety analysis over full academic year."
+  ],
+  "identified_research_gaps": [
+    {
+      "gap_id": "gap-1",
+      "statement": "Most studies miss longitudinal evaluation and long-term behavior analysis.",
+      "rationale": "Recurring signals from 4 extracted limitations.",
+      "citations": [
+        {
+          "paper_id": "P-005",
+          "title": "Deploying AI Mental Health Assistants in University Settings",
+          "reason": "Limited follow-up prevents understanding long-term safety outcomes."
+        }
+      ]
+    }
+  ],
+  "top_suggested_research_directions": [
+    {
+      "title": "AI assistants for student mental health support: Longitudinal Performance Modeling",
+      "hypothesis": "Addressing this gap can improve measurable outcomes versus baseline methods.",
+      "short_scope": "8-10 week scope with one focused method and benchmarked evaluation.",
+      "novelty_score": 7.2,
+      "feasibility_score": 6.5,
+      "impact_score": 8.0,
+      "overall_score": 7.34,
+      "citations": [
+        {
+          "paper_id": "P-005",
+          "title": "Deploying AI Mental Health Assistants in University Settings",
+          "reason": "Future work: Perform longitudinal safety analysis over full academic year."
+        }
+      ],
+      "priority": "high"
+    }
+  ]
+}
