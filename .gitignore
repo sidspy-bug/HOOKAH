@@ -24,3 +24,6 @@ bower_components/
 .env
 .env.local
 .env.*.local
+
+# Local Node.js
+apps/web/env_node/

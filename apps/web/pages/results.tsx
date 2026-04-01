@@ -1,5 +1,5 @@
 import Head from "next/head";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import Sidebar from "../components/Sidebar";
 import HistorySidebar from "../components/HistorySidebar";
@@ -7,6 +7,7 @@ import InfoModal from "../components/InfoModal";
 import PaperCard from "../components/PaperCard";
 import GapCard from "../components/GapCard";
 import DirectionCard from "../components/DirectionCard";
+import LimitationCard from "../components/LimitationCard";
 import type { AnalyzeResponse } from "../lib/types";
 
 export default function ResultsPage() {
@@ -17,6 +18,29 @@ export default function ResultsPage() {
   const [activeTab, setActiveTab] = useState<"papers" | "limitations" | "gaps" | "directions">("directions");
   const [historyOpen, setHistoryOpen] = useState(true);
   const [history, setHistory] = useState<any[]>([]);
+
+  // Dashboard refs & state
+  const directionsRef = useRef<HTMLDivElement>(null);
+  const gapsRef = useRef<HTMLDivElement>(null);
+  const papersRef = useRef<HTMLDivElement>(null);
+  const limitationsRef = useRef<HTMLDivElement>(null);
+  
+  const [highlightedPaperId, setHighlightedPaperId] = useState<string | null>(null);
+  const [highlightedGapId, setHighlightedGapId] = useState<string | null>(null);
+  const [limFilter, setLimFilter] = useState<"All" | "AI Impacted" | "Moderate" | "Minor">("All");
+
+  const handleTabSwitch = (tabKey: typeof activeTab) => {
+    setActiveTab(tabKey);
+    const refs = {
+      directions: directionsRef,
+      gaps: gapsRef,
+      papers: papersRef,
+      limitations: limitationsRef
+    };
+    setTimeout(() => {
+      refs[tabKey]?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  };
 
   useEffect(() => {
     const storedHistory = localStorage.getItem("gapforge_history");
@@ -113,25 +137,41 @@ export default function ResultsPage() {
 
             {/* Stats Row */}
             <div className="statsRow">
-              <div className="statCard">
+              <div 
+                className={`statCard ${activeTab === 'papers' ? 'activeStat' : ''}`}
+                onClick={() => handleTabSwitch('papers')}
+                style={{ cursor: 'pointer', borderColor: activeTab === 'papers' ? 'var(--orange)' : '' }}
+              >
                 <div className="statNumber orange">
                   {data.analyzed_papers.length}
                 </div>
                 <div className="statLabel">Papers Analyzed</div>
               </div>
-              <div className="statCard">
+              <div 
+                className={`statCard ${activeTab === 'limitations' ? 'activeStat' : ''}`}
+                onClick={() => handleTabSwitch('limitations')}
+                style={{ cursor: 'pointer', borderColor: activeTab === 'limitations' ? 'var(--purple)' : '' }}
+              >
                 <div className="statNumber purple">
                   {data.extracted_limitations.length}
                 </div>
                 <div className="statLabel">Limitations Found</div>
               </div>
-              <div className="statCard">
+              <div 
+                className={`statCard ${activeTab === 'gaps' ? 'activeStat' : ''}`}
+                onClick={() => handleTabSwitch('gaps')}
+                style={{ cursor: 'pointer', borderColor: activeTab === 'gaps' ? 'var(--teal)' : '' }}
+              >
                 <div className="statNumber teal">
                   {data.identified_research_gaps.length}
                 </div>
                 <div className="statLabel">Gaps Identified</div>
               </div>
-              <div className="statCard">
+              <div 
+                className={`statCard ${activeTab === 'directions' ? 'activeStat' : ''}`}
+                onClick={() => handleTabSwitch('directions')}
+                style={{ cursor: 'pointer', borderColor: activeTab === 'directions' ? 'var(--green)' : '' }}
+              >
                 <div className="statNumber green">
                   {data.top_suggested_research_directions.length}
                 </div>
@@ -145,7 +185,7 @@ export default function ResultsPage() {
                 <button
                   key={tab.key}
                   className={`chip ${activeTab === tab.key ? "chipActive" : ""}`}
-                  onClick={() => setActiveTab(tab.key)}
+                  onClick={() => handleTabSwitch(tab.key)}
                   style={
                     activeTab === tab.key
                       ? {
@@ -168,65 +208,122 @@ export default function ResultsPage() {
               ))}
             </div>
 
-            {/* Directions Tab */}
-            {activeTab === "directions" && (
-              <section className="resultsSection">
-                <div className="sectionHeader">
+            {/* Single Panel View (formerly 2x2 Grid) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 10 }}>
+              
+              {/* Top Left: Directions */}
+              <div 
+                ref={directionsRef}
+                className={`dashboardPanel ${activeTab === "directions" ? "highlighted-panel" : ""}`}
+                style={{ display: activeTab === "directions" ? 'flex' : 'none', minHeight: '600px', width: '100%', boxSizing: 'border-box' }}
+              >
+                <div className="panelHeader">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{color: 'var(--orange)'}}>
                     <circle cx="12" cy="12" r="10"></circle>
                     <circle cx="12" cy="12" r="6"></circle>
                     <circle cx="12" cy="12" r="2"></circle>
                   </svg>
-                  <h2>Top Research Directions</h2>
+                  <h2>Research Directions</h2>
                 </div>
-                <div className="cardGrid">
+                <div className="panelSubtitle">
+                  {data.top_suggested_research_directions.length} actionable directions identified to advance research
+                </div>
+                <div style={{ display: 'grid', gap: 14 }}>
                   {data.top_suggested_research_directions.map((dir, i) => (
-                    <DirectionCard key={dir.title} direction={dir} index={i} />
+                    <DirectionCard 
+                      key={dir.title} 
+                      direction={dir} 
+                      index={i} 
+                      allLimitations={data.extracted_limitations}
+                    />
                   ))}
                 </div>
-              </section>
-            )}
+              </div>
 
-            {/* Gaps Tab */}
-            {activeTab === "gaps" && (
-              <section className="resultsSection">
-                <div className="sectionHeader">
+              {/* Top Right: Gaps */}
+              <div 
+                ref={gapsRef}
+                className={`dashboardPanel ${activeTab === "gaps" ? "highlighted-panel" : ""}`}
+                style={{ display: activeTab === "gaps" ? 'flex' : 'none', minHeight: '600px', width: '100%', boxSizing: 'border-box' }}
+              >
+                <div className="panelHeader">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{color: 'var(--teal)'}}>
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                   </svg>
-                  <h2>Identified Research Gaps</h2>
+                  <h2>Research Gaps</h2>
                 </div>
-                <div className="cardGrid">
+                <div className="panelSubtitle">
+                  {data.identified_research_gaps.length} research gaps identified from existing literature
+                </div>
+                <div style={{ display: 'grid', gap: 14 }}>
                   {data.identified_research_gaps.map((gap, i) => (
-                    <GapCard key={gap.gap_id} gap={gap} index={i} />
+                    <div 
+                      key={gap.gap_id} 
+                      ref={(el) => {
+                        if (el && highlightedGapId === gap.gap_id) {
+                          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                      }}
+                      className={highlightedGapId === gap.gap_id ? 'item-highlight' : ''}
+                      style={{ borderRadius: 8 }}
+                    >
+                      <GapCard 
+                        gap={gap} 
+                        index={i} 
+                        onPaperClick={(id) => {
+                          setHighlightedPaperId(id);
+                          setActiveTab("papers");
+                          papersRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }} 
+                      />
+                    </div>
                   ))}
                 </div>
-              </section>
-            )}
+              </div>
 
-            {/* Papers Tab */}
-            {activeTab === "papers" && (
-              <section className="resultsSection">
-                <div className="sectionHeader">
+              {/* Bottom Left: Papers */}
+              <div 
+                ref={papersRef}
+                className={`dashboardPanel ${activeTab === "papers" ? "highlighted-panel" : ""}`}
+                style={{ display: activeTab === "papers" ? 'flex' : 'none', minHeight: '600px', width: '100%', boxSizing: 'border-box' }}
+              >
+                <div className="panelHeader">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{color: 'var(--purple)'}}>
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                     <polyline points="14 2 14 8 20 8"></polyline>
                   </svg>
                   <h2>Analyzed Papers</h2>
                 </div>
+                <div className="panelSubtitle">
+                  {data.analyzed_papers.length} papers analyzed to provide insights
+                </div>
                 <div className="cardGrid cols2">
                   {data.analyzed_papers.map((paper) => (
-                    <PaperCard key={paper.paper_id} paper={paper} />
+                    <div 
+                      key={paper.paper_id}
+                      ref={(el) => {
+                        if (el && highlightedPaperId === paper.paper_id) {
+                          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                      }}
+                    >
+                      <PaperCard 
+                        paper={paper} 
+                        isHighlighted={highlightedPaperId === paper.paper_id} 
+                      />
+                    </div>
                   ))}
                 </div>
-              </section>
-            )}
+              </div>
 
-            {/* Limitations Tab */}
-            {activeTab === "limitations" && (
-              <section className="resultsSection">
-                <div className="sectionHeader">
+              {/* Bottom Right: Limitations */}
+              <div 
+                ref={limitationsRef}
+                className={`dashboardPanel ${activeTab === "limitations" ? "highlighted-panel" : ""}`}
+                style={{ display: activeTab === "limitations" ? 'flex' : 'none', minHeight: '600px', width: '100%', boxSizing: 'border-box' }}
+              >
+                <div className="panelHeader">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{color: 'var(--red)'}}>
                     <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
                     <line x1="12" y1="9" x2="12" y2="13"></line>
@@ -234,16 +331,58 @@ export default function ResultsPage() {
                   </svg>
                   <h2>Extracted Limitations</h2>
                 </div>
-                <ul className="limitationsList">
-                  {data.extracted_limitations.map((lim, i) => (
-                    <li key={i}>
-                      <span className="limIcon">▸</span>
-                      {lim}
-                    </li>
+                <div className="panelSubtitle">
+                  {data.extracted_limitations.length} extracted limitations that reveal research issues
+                </div>
+                
+                <div className="limFilterRow">
+                  {["All", "AI Impacted", "Moderate", "Minor"].map((f) => (
+                    <button 
+                      key={f}
+                      className={`limFilterBtn ${limFilter === f ? 'active ' + f.toLowerCase().replace(' ', '-') : ''}`}
+                      onClick={() => setLimFilter(f as any)}
+                    >
+                      {f}
+                    </button>
                   ))}
-                </ul>
-              </section>
-            )}
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  {data.extracted_limitations.map((lim, i) => {
+                    const lLower = lim.toLowerCase();
+                    let severity = "Minor";
+                    if (lLower.includes("bias") || lLower.includes("fairness") || lLower.includes("demographic") || lLower.includes("scoring")) severity = "AI Impacted";
+                    else if (lLower.includes("validity") || lLower.includes("dataset") || lLower.includes("real-world") || lLower.includes("follow-up") || lLower.includes("size")) severity = "Moderate";
+                    else if (i % 4 === 0) severity = "AI Impacted";
+                    else if (i % 2 === 0) severity = "Moderate";
+
+                    if (limFilter !== "All" && severity !== limFilter) return null;
+
+                    return (
+                      <LimitationCard 
+                        key={i} 
+                        limitation={lim} 
+                        index={i}
+                        papers={data.analyzed_papers}
+                        gaps={data.identified_research_gaps}
+                        directions={data.top_suggested_research_directions}
+                        onPaperClick={(id) => {
+                          setHighlightedPaperId(id);
+                          setActiveTab("papers");
+                          papersRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }}
+                        onGapClick={(id) => {
+                          setHighlightedGapId(id);
+                          setActiveTab("gaps");
+                          gapsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+
+            </div>
           </div>
         </main>
       </div>
