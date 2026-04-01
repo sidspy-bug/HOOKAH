@@ -157,7 +157,6 @@ export default function HomePage() {
         <main className="appMain">
           <header className="topNav">
             <div className="brandContainer">
-              <span className="shuttle">🚀</span>
               <div className="brand">GapForge</div>
             </div>
             <nav className="topLinks">
