@@ -7,6 +7,7 @@ import InfoModal from "../components/InfoModal";
 import FileUpload from "../components/FileUpload";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { analyzeResearchGaps } from "../lib/api";
+import DomainSelector from "../components/DomainSelector";
 import type { AnalyzeResponse } from "../lib/types";
 
 const quickActions = [
@@ -210,13 +211,7 @@ export default function HomePage() {
                   placeholder="Keywords (comma-separated)"
                   aria-label="Keywords input"
                 />
-                <input
-                  type="text"
-                  value={domain}
-                  onChange={(e) => setDomain(e.target.value)}
-                  placeholder="Domain (e.g. health-ai)"
-                  aria-label="Domain input"
-                />
+                <DomainSelector value={domain} onChange={setDomain} />
               </div>
 
               <div className="promptFooter">
@@ -232,9 +227,6 @@ export default function HomePage() {
                     }}
                   >
                     ✕
-                  </button>
-                  <button className="softBtn" title="Auto-fill example" onClick={() => handleQuickAction(quickActions[0])}>
-                    Auto ▾
                   </button>
                   <button className="softBtn" title="View agents" onClick={() => { setInfoModalType("settings"); setSettingsOpen(true); }}>
                     Agents
