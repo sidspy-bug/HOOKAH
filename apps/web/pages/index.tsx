@@ -211,7 +211,6 @@ export default function HomePage() {
                   placeholder="Keywords (comma-separated)"
                   aria-label="Keywords input"
                 />
-                <DomainSelector value={domain} onChange={setDomain} />
               </div>
 
               <div className="promptFooter">
