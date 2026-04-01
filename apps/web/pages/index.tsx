@@ -203,30 +203,10 @@ export default function HomePage() {
                 aria-label="Research topic input"
               />
 
-              <div className="promptExtras">
-                <input
-                  type="text"
-                  value={keywords}
-                  onChange={(e) => setKeywords(e.target.value)}
-                  placeholder="Keywords (comma-separated)"
-                  aria-label="Keywords input"
-                />
-              </div>
+
 
               <div className="promptFooter">
                 <div className="leftControls">
-                  <button
-                    className="iconBtn"
-                    title="Clear form"
-                    onClick={() => {
-                      setTopic("");
-                      setKeywords("");
-                      setDomain("");
-                      setError(null);
-                    }}
-                  >
-                    ✕
-                  </button>
                   <button className="softBtn" title="View agents" onClick={() => { setInfoModalType("settings"); setSettingsOpen(true); }}>
                     Agents
                   </button>
