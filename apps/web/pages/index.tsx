@@ -1,148 +1,18 @@
-import Head from "next/head";
-import React, { useState, useCallback } from "react";
-import { useRouter } from "next/router";
-import Sidebar from "../components/Sidebar";
-import HistorySidebar from "../components/HistorySidebar";
-import InfoModal from "../components/InfoModal";
-import FileUpload from "../components/FileUpload";
-import LoadingSpinner from "../components/LoadingSpinner";
-import { analyzeResearchGaps } from "../lib/api";
-import DomainSelector from "../components/DomainSelector";
-import type { AnalyzeResponse } from "../lib/types";
+import Head from 'next/head';
+import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
 
-const quickActions = [
-  { label: "AI Mental Health", topic: "AI assistants for student mental health support", keywords: ["longitudinal", "fairness", "explainability"], domain: "health-ai" },
-  { label: "NLP Chatbots", topic: "Low-resource NLP for public service chatbots", keywords: ["low-resource nlp", "chatbots", "fairness"], domain: "public-sector-ai" },
-  { label: "Explainable AI", topic: "Explainable clinical triage assistants", keywords: ["explainability", "clinical ai"], domain: "health-ai" },
-  { label: "Future of Work", topic: "Multimodal workload estimation for hybrid teams", keywords: ["multimodal", "productivity"], domain: "future-of-work" },
-  { label: "LLM Reliability", topic: "Reproducibility challenges in applied LLM product teams", keywords: ["llm ops", "reproducibility"], domain: "ml-systems" },
-];
-
-type HistoryEntry = {
-  topic: string;
-  timestamp: string;
-  result: AnalyzeResponse;
-};
-
-export default function HomePage() {
-  const router = useRouter();
-  const [topic, setTopic] = useState("");
-  const [keywords, setKeywords] = useState("");
-  const [domain, setDomain] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [infoModalType, setInfoModalType] = useState<"settings" | "pricing" | "feedback" | "agents" | null>(null);
-  const [historyOpen, setHistoryOpen] = useState(true);
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-
-  const [typedText, setTypedText] = useState("");
+export default function LandingPage() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const savedTheme = localStorage.getItem("gapforge_theme");
     if (savedTheme === "dark") {
       setTheme("dark");
       document.documentElement.setAttribute("data-theme", "dark");
     }
   }, []);
-
-  React.useEffect(() => {
-    const fullText = "Discover research gaps with confidence";
-    let currentText = "";
-    let isDeleting = false;
-    let timerId: ReturnType<typeof setTimeout>;
-
-    const tick = () => {
-      if (!isDeleting && currentText.length < fullText.length) {
-        currentText = fullText.substring(0, currentText.length + 1);
-        setTypedText(currentText);
-        timerId = setTimeout(tick, 100);
-      } else if (!isDeleting && currentText.length === fullText.length) {
-        isDeleting = true;
-        timerId = setTimeout(tick, 5000); // Wait longer before deleting
-      } else if (isDeleting && currentText.length > 0) {
-        currentText = currentText.substring(0, currentText.length - 1);
-        setTypedText(currentText);
-        timerId = setTimeout(tick, 40);
-      } else if (isDeleting && currentText.length === 0) {
-        isDeleting = false;
-        timerId = setTimeout(tick, 1000); // Wait before re-typing
-      }
-    };
-    timerId = setTimeout(tick, 100);
-    return () => clearTimeout(timerId);
-  }, []);
-
-  React.useEffect(() => {
-    const stored = localStorage.getItem("gapforge_history");
-    if (stored) {
-      try {
-        setHistory(JSON.parse(stored));
-      } catch (e) {
-        console.error("Failed to parse history.");
-      }
-    }
-  }, []);
-
-  const handleSubmit = useCallback(async () => {
-    if (!topic.trim()) {
-      setError("Please enter a research topic.");
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const result = await analyzeResearchGaps({
-        topic: topic.trim(),
-        keywords: keywords
-          .split(",")
-          .map((k) => k.trim())
-          .filter(Boolean),
-        domain: domain.trim() || null,
-      });
-
-      // Save to history
-      const entry: HistoryEntry = {
-        topic: topic.trim(),
-        timestamp: new Date().toLocaleString(),
-        result,
-      };
-      setHistory((prev) => {
-        const newHistory = [entry, ...prev];
-        localStorage.setItem("gapforge_history", JSON.stringify(newHistory));
-        return newHistory;
-      });
-
-      // Store result and navigate
-      sessionStorage.setItem("gapforge_result", JSON.stringify(result));
-      router.push("/results");
-    } catch (err: any) {
-      setError(err.message || "Something went wrong. Is the API server running?");
-      setLoading(false);
-    }
-  }, [topic, keywords, domain, router]);
-
-  const handleQuickAction = (action: typeof quickActions[0]) => {
-    setTopic(action.topic);
-    setKeywords(action.keywords.join(", "));
-    setDomain(action.domain);
-  };
-
-  const handleHistoryClick = (entry: HistoryEntry) => {
-    sessionStorage.setItem("gapforge_result", JSON.stringify(entry.result));
-    router.push("/results");
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  };
 
   return (
     <>
@@ -153,132 +23,70 @@ export default function HomePage() {
           content="Discover research gaps with AI-powered analysis. Analyze papers, extract limitations, and get ranked project directions."
         />
       </Head>
+      <div className="marketingPage">
+        <header className="topNav" style={{ borderBottom: "none", background: "transparent" }}>
+          <div className="brandContainer">
+            <div className="brand" style={{ fontSize: "1.5rem" }}>GapForge</div>
+          </div>
+          <nav className="topLinks">
+            <Link href="/dashboard" className="sendBtn" style={{ padding: "0 20px", width: "auto", borderRadius: "8px", textDecoration: "none" }}>
+              Sign In
+            </Link>
+          </nav>
+        </header>
 
-      {loading && <LoadingSpinner />}
-
-      <div className="shell">
-        <Sidebar
-          onToggleHistory={() => setHistoryOpen(!historyOpen)}
-          onOpenAgents={() => { setInfoModalType("agents"); setSettingsOpen(true); }}
-          onOpenSettings={() => { setInfoModalType("settings"); setSettingsOpen(true); }}
-          onOpenFeedback={() => { setInfoModalType("feedback"); setSettingsOpen(true); }}
-        />
-
-        <main className="appMain">
-          <header className="topNav">
-            <div className="brandContainer">
-              <div className="brand">GapForge</div>
-            </div>
-            <nav className="topLinks">
-              <a href="#" onClick={(e) => { e.preventDefault(); setInfoModalType("pricing"); setSettingsOpen(true); }}>
-                Pricing
-              </a>
-              <a href="#" onClick={(e) => { e.preventDefault(); alert("Login coming soon!"); }}>
-                Login
-              </a>
-              <button className="cta" onClick={() => document.querySelector("textarea")?.focus()}>
-                Get started
-              </button>
-            </nav>
-          </header>
-
-          <div className="mainBody">
-            {historyOpen && (
-              <HistorySidebar 
-                history={history}
-                setHistory={setHistory}
-                onItemClick={handleHistoryClick}
-              />
-            )}
-
-            <section className="centerStage">
-            <p className="logoMark">◆</p>
-            <h1 className="typewriterText">
-              {typedText}
-              <span className="cursor" />
-            </h1>
+        <main>
+          <section className="marketingHero">
+            <h1>Discover the unknown. <br/><span className="typewriterText" style={{ animationDuration: "5s" }}>Build the future.</span></h1>
             <p className="subtext">
-              Analyze academic papers, extract limitations, and get ranked
-              project directions — all backed by citations.
+              GapForge autonomously analyzes thousands of academic papers to extract limitations, cluster findings, and generate highly ranked, rigorously backed project directions.
             </p>
-
-            <article className="promptCard">
-              <textarea
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Enter your research topic, e.g. 'AI assistants for student mental health support'"
-                aria-label="Research topic input"
-              />
-
-
-
-              <div className="promptFooter">
-                <div className="leftControls">
-                  <button className="softBtn" title="View agents" onClick={() => { setInfoModalType("settings"); setSettingsOpen(true); }}>
-                    Agents
-                  </button>
-                  <FileUpload 
-                    selectedFile={uploadedFile} 
-                    onFileSelect={setUploadedFile} 
-                  />
-                </div>
-                <button
-                  className="sendBtn"
-                  aria-label="Analyze"
-                  onClick={handleSubmit}
-                  disabled={loading || !topic.trim()}
-                  title="Run analysis"
-                >
-                  ↑
-                </button>
-              </div>
-            </article>
-
-            {error && (
-              <div className="errorBanner">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: '6px', flexShrink: 0}}>
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-                {error}
-              </div>
-            )}
-
-            <div className="actionRow">
-              {quickActions.map((action) => (
-                <button
-                  key={action.label}
-                  className="chip"
-                  onClick={() => handleQuickAction(action)}
-                >
-                  {action.label}
-                </button>
-              ))}
+            <div className="ctaRow">
+              <Link href="/dashboard" className="marketingBtn primary">
+                Start Exploring Free
+              </Link>
+              <button onClick={() => setShowHowItWorks(!showHowItWorks)} className="marketingBtn">
+                {showHowItWorks ? "Hide Details" : "How It Works"}
+              </button>
             </div>
           </section>
-          </div>
-        </main>
-      </div>
 
-        {settingsOpen && infoModalType && (
-          <InfoModal
-            type={infoModalType}
-            isOpen={settingsOpen}
-            onClose={() => { setSettingsOpen(false); setInfoModalType(null); }}
-            theme={theme}
-            onThemeChange={(newTheme) => {
-              setTheme(newTheme);
-              localStorage.setItem("gapforge_theme", newTheme);
-              if (newTheme === "dark") {
-                document.documentElement.setAttribute("data-theme", "dark");
-              } else {
-                document.documentElement.removeAttribute("data-theme");
-              }
-            }}
-          />
-        )}
+          {showHowItWorks && (
+            <section id="how-it-works" className="bentoGrid" style={{ animation: "slideDown 0.4s ease-out forwards" }}>
+            <div className="bentoCard large">
+              <div className="featureIcon">📄</div>
+              <h3>1. Feed Data at Scale</h3>
+              <p className="subtext" style={{margin: 0}}>Upload PDFs, scrape direct from arXiv, or link your Mendeley library. Our Paper Analyst agent aggressively filters through noise to find only relevant methodology.</p>
+            </div>
+            
+            <div className="bentoCard">
+              <div className="featureIcon">🔍</div>
+              <h3>2. Extract Limitations</h3>
+              <p className="subtext" style={{margin: 0}}>The core AI engine reads conclusion sections, extracting stated weaknesses, technical limitations, and future work explicitly cited by authors.</p>
+            </div>
+
+            <div className="bentoCard">
+              <div className="featureIcon">✨</div>
+              <h3>3. Map The Gaps</h3>
+              <p className="subtext" style={{margin: 0}}>Discover aggregated clusters of overlapping limitations that reveal entirely under-researched domains and blind spots.</p>
+            </div>
+
+            <div className="bentoCard large">
+              <div className="featureIcon">🚀</div>
+              <h3>4. Generate Project Scopes</h3>
+              <p className="subtext" style={{margin: 0}}>Automatically rank gap candidates by feasibility, novelty, and impact. Finally, generate step-by-step hypothesis approaches to tackle them.</p>
+            </div>
+          </section>
+          )}
+        </main>
+
+        <footer className="marketingFooter">
+          <h2>Ready to forge the next breakthrough?</h2>
+          <p className="muted" style={{ marginTop: "40px", fontSize: "0.85rem" }}>
+            © 2026 GapForge AI. All rights reserved. Built for researchers.
+          </p>
+        </footer>
+      </div>
     </>
   );
 }

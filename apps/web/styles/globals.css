@@ -1961,3 +1961,171 @@ h1 {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ── Marketing Landing Page ────────────────────────────── */
+
+.marketingPage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+.marketingHero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 100px 20px 80px;
+  position: relative;
+}
+
+.marketingHero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at center top, var(--orange-glow) 0%, transparent 60%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.marketingHero h1 {
+  font-size: 4.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+  max-width: 900px;
+  z-index: 1;
+}
+
+.marketingHero .subtext {
+  font-size: 1.25rem;
+  max-width: 700px;
+  margin-bottom: 40px;
+  z-index: 1;
+}
+
+.marketingHero .ctaRow {
+  display: flex;
+  gap: 16px;
+  z-index: 1;
+}
+
+.marketingBtn {
+  border: 2px solid var(--line);
+  background: var(--surface);
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text);
+  padding: 14px 32px;
+  cursor: pointer;
+  box-shadow: 0px 6px 0px var(--line);
+  transform: translateY(0);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.marketingBtn.primary {
+  background: linear-gradient(135deg, #ff6b2d, var(--orange));
+  color: #fff;
+  border-color: var(--orange);
+  box-shadow: 0px 6px 0px #c53e0d, 0 8px 30px var(--orange-glow);
+}
+
+.marketingBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 8px 0px var(--line);
+}
+
+.marketingBtn.primary:hover {
+  box-shadow: 0px 8px 0px #b83506, 0 12px 40px var(--orange-glow);
+}
+
+.marketingBtn:active {
+  transform: translateY(6px) !important;
+  box-shadow: 0px 0px 0px transparent !important;
+}
+
+/* Marketing Bento Grid */
+.bentoGrid {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  z-index: 1;
+  position: relative;
+}
+
+.bentoCard {
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  padding: 32px;
+  box-shadow: 0px 8px 0px var(--line);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.bentoCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0px 12px 0px var(--line), var(--shadow-md);
+  border-color: var(--muted);
+}
+
+.bentoCard h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+.bentoCard.large {
+  grid-column: span 2;
+}
+
+.featureIcon {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  background: var(--surface-soft);
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 2px solid var(--line);
+  box-shadow: 0px 4px 0px var(--line);
+}
+
+/* Footer marketing */
+.marketingFooter {
+  text-align: center;
+  padding: 80px 20px 60px;
+  background: var(--surface-soft);
+  border-top: 1px solid var(--line);
+  margin-top: auto;
+}
+
+@media (max-width: 900px) {
+  .bentoGrid {
+    grid-template-columns: 1fr;
+  }
+  .bentoCard.large {
+    grid-column: span 1;
+  }
+  .marketingHero h1 {
+    font-size: 3rem;
+  }
+}
