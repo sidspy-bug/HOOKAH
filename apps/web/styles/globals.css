@@ -1968,20 +1968,21 @@ h1 {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%);
-  color: var(--text);
+  /* Shiny deep black background */
+  background: radial-gradient(circle at 50% -10%, #202026 0%, #050505 60%, #000000 100%);
+  color: #f8fafc;
   overflow-x: hidden;
   position: relative;
 }
 
 [data-theme="dark"] .marketingPage {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #172033 100%);
+  background: radial-gradient(circle at 50% -10%, #202026 0%, #050505 60%, #000000 100%);
 }
 
 .mathParticle {
   position: absolute;
-  color: var(--text);
-  opacity: 0.08;
+  color: #cbd5e1;
+  opacity: 0.15;
   font-family: 'Times New Roman', serif;
   font-style: italic;
   white-space: nowrap;
@@ -2010,10 +2011,17 @@ h1 {
 .marketingHero::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(circle at center top, var(--orange-glow) 0%, transparent 60%);
+  top: -100px; left: 0; right: 0; bottom: 0;
+  /* Luminous light */
+  background: radial-gradient(ellipse at center top, rgba(255, 107, 45, 0.45) 0%, rgba(255, 107, 45, 0.1) 30%, transparent 70%);
   z-index: 0;
   pointer-events: none;
+  animation: pulseLuminous 5s ease-in-out infinite alternate;
+}
+
+@keyframes pulseLuminous {
+  0% { opacity: 0.7; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.1); }
 }
 
 .marketingHero h1 {
@@ -2092,27 +2100,29 @@ h1 {
 }
 
 .bentoCard {
-  background: var(--surface);
-  border: 2px solid var(--line);
+  background: rgba(20, 20, 24, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: var(--radius);
   padding: 32px;
-  box-shadow: 0px 8px 0px var(--line);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0px 8px 0px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   display: flex;
   flex-direction: column;
 }
 
 .bentoCard:hover {
   transform: translateY(-4px);
-  box-shadow: 0px 12px 0px var(--line), var(--shadow-md);
-  border-color: var(--muted);
+  box-shadow: 0px 12px 0px rgba(0,0,0,0.8), 0 20px 40px rgba(0,0,0,0.4);
+  border-color: rgba(255,107,45, 0.5);
 }
 
 .bentoCard h3 {
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 12px;
-  color: var(--text);
+  color: #fff;
 }
 
 .bentoCard.large {
@@ -2122,23 +2132,24 @@ h1 {
 .featureIcon {
   font-size: 2.5rem;
   margin-bottom: 20px;
-  background: var(--surface-soft);
+  background: rgba(0,0,0, 0.4);
+  color: #ff6b2d;
   width: 60px;
   height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 14px;
-  border: 2px solid var(--line);
-  box-shadow: 0px 4px 0px var(--line);
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0px 4px 0px rgba(0,0,0,0.6);
 }
 
 /* Footer marketing */
 .marketingFooter {
   text-align: center;
   padding: 80px 20px 60px;
-  background: var(--surface-soft);
-  border-top: 1px solid var(--line);
+  background: rgba(10, 10, 12, 0.8);
+  border-top: 1px solid rgba(255,255,255,0.05);
   margin-top: auto;
 }
 
