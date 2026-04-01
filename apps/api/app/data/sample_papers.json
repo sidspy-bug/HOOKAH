@@ -1,0 +1,112 @@
+{
+  "papers": [
+    {
+      "paper_id": "P-001",
+      "title": "Personalized Feedback Strategies for Online Learning Cohorts",
+      "domain": "education-ai",
+      "year": 2023,
+      "keywords": ["online learning", "personalization", "student modeling"],
+      "abstract": "Investigates feedback policies in online classrooms with moderate gains on completion rates.",
+      "methods": ["transformer classifier", "rule-based intervention"],
+      "findings": "Personalized nudges improved assignment completion by 8% compared to static reminders.",
+      "limitations": [
+        "Dataset over-represents high-performing students and underrepresents struggling cohorts.",
+        "No longitudinal follow-up beyond one semester."
+      ],
+      "future_work": [
+        "Study patient-specific or student-specific adaptation in longer deployments.",
+        "Evaluate fairness across socioeconomic and language groups."
+      ]
+    },
+    {
+      "paper_id": "P-002",
+      "title": "Benchmarking Explainable Clinical Triage Assistants",
+      "domain": "health-ai",
+      "year": 2024,
+      "keywords": ["clinical ai", "explainability", "triage"],
+      "abstract": "Benchmarks triage assistants for emergency intake tasks under synthetic scenarios.",
+      "methods": ["retrieval-augmented generation", "gradient boosting baseline"],
+      "findings": "LLM-assisted triage reduced queue time but generated inconsistent rationales.",
+      "limitations": [
+        "Interpretability scores vary widely between demographic subgroups.",
+        "Evaluation used synthetic data, limiting real-world validity."
+      ],
+      "future_work": [
+        "Conduct in-the-wild deployment studies in real emergency departments.",
+        "Add fairness constraints in triage recommendation scoring."
+      ]
+    },
+    {
+      "paper_id": "P-003",
+      "title": "Multimodal Workload Estimation for Hybrid Teams",
+      "domain": "future-of-work",
+      "year": 2022,
+      "keywords": ["multimodal", "productivity", "collaboration"],
+      "abstract": "Estimates team workload using chat, meeting transcripts, and calendar metadata.",
+      "methods": ["late fusion network", "graph neural network"],
+      "findings": "Multimodal features outperform text-only baselines on short-term workload prediction.",
+      "limitations": [
+        "Model drifts after 6 weeks due to process changes.",
+        "No causal explanation for feature importance shifts."
+      ],
+      "future_work": [
+        "Investigate temporal adaptation mechanisms for long-term use.",
+        "Improve transparent reasoning for managerial adoption."
+      ]
+    },
+    {
+      "paper_id": "P-004",
+      "title": "Low-Resource NLP for Public Service Chatbots",
+      "domain": "public-sector-ai",
+      "year": 2021,
+      "keywords": ["low-resource nlp", "chatbots", "public service"],
+      "abstract": "Builds multilingual intent detection for government service chatbots.",
+      "methods": ["distilled multilingual transformer", "active learning"],
+      "findings": "Active learning improves intent coverage in minority languages.",
+      "limitations": [
+        "Small labeled corpora leads to brittle behavior for domain transfer.",
+        "Bias observed against underrepresented dialects."
+      ],
+      "future_work": [
+        "Develop robust transfer methods with few-shot adaptation.",
+        "Systematically audit fairness across dialect communities."
+      ]
+    },
+    {
+      "paper_id": "P-005",
+      "title": "Deploying AI Mental Health Assistants in University Settings",
+      "domain": "health-ai",
+      "year": 2024,
+      "keywords": ["mental health", "deployment", "assistants"],
+      "abstract": "Reports pilot deployment of AI support assistants for student well-being.",
+      "methods": ["intent routing", "risk escalation pipeline"],
+      "findings": "Engagement improved in early weeks but dropped over time.",
+      "limitations": [
+        "Limited follow-up prevents understanding long-term safety outcomes.",
+        "Intervention effects may differ across cultural contexts."
+      ],
+      "future_work": [
+        "Perform longitudinal safety analysis over full academic year.",
+        "Design culturally adaptive response strategies."
+      ]
+    },
+    {
+      "paper_id": "P-006",
+      "title": "Reproducibility Challenges in Applied LLM Product Teams",
+      "domain": "ml-systems",
+      "year": 2023,
+      "keywords": ["llm ops", "reproducibility", "evaluation"],
+      "abstract": "Surveys reproducibility failures in production LLM deployments.",
+      "methods": ["industry interviews", "pipeline audits"],
+      "findings": "Evaluation drift and undocumented prompts are top failure points.",
+      "limitations": [
+        "Limited sample size from a narrow set of organizations.",
+        "No standardized framework for impact vs feasibility tradeoffs."
+      ],
+      "future_work": [
+        "Create benchmarked protocols for rapid but reliable experiment cycles.",
+        "Quantify deployment readiness indicators in real-world settings."
+      ]
+    }
+  ]
+}

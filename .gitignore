@@ -1,0 +1,29 @@
+# Node modules
+node_modules/
+**/node_modules/
+
+# Next.js
+**/.next/
+out/
+
+# Logs
+logs/
+*.log
+app.log
+
+# Dependency directories
+bower_components/
+
+# Python
+**/__pycache__/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.venv/
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Local Node.js
+apps/web/env_node/
