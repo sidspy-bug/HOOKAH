@@ -38,6 +38,15 @@ export default function HomePage() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
   const [typedText, setTypedText] = useState("");
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  React.useEffect(() => {
+    const savedTheme = localStorage.getItem("gapforge_theme");
+    if (savedTheme === "dark") {
+      setTheme("dark");
+      document.documentElement.setAttribute("data-theme", "dark");
+    }
+  }, []);
 
   React.useEffect(() => {
     const fullText = "Discover research gaps with confidence";
@@ -161,7 +170,6 @@ export default function HomePage() {
               <div className="brand">GapForge</div>
             </div>
             <nav className="topLinks">
-
               <a href="#" onClick={(e) => { e.preventDefault(); setInfoModalType("pricing"); setSettingsOpen(true); }}>
                 Pricing
               </a>
@@ -254,11 +262,23 @@ export default function HomePage() {
         </main>
       </div>
 
-      <InfoModal
-        type={infoModalType || "settings"}
-        isOpen={settingsOpen}
-        onClose={() => { setSettingsOpen(false); setInfoModalType(null); }}
-      />
+        {settingsOpen && infoModalType && (
+          <InfoModal
+            type={infoModalType}
+            isOpen={settingsOpen}
+            onClose={() => { setSettingsOpen(false); setInfoModalType(null); }}
+            theme={theme}
+            onThemeChange={(newTheme) => {
+              setTheme(newTheme);
+              localStorage.setItem("gapforge_theme", newTheme);
+              if (newTheme === "dark") {
+                document.documentElement.setAttribute("data-theme", "dark");
+              } else {
+                document.documentElement.removeAttribute("data-theme");
+              }
+            }}
+          />
+        )}
     </>
   );
 }

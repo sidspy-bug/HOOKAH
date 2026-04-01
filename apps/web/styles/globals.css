@@ -27,6 +27,22 @@
   --transition: 180ms ease;
 }
 
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f172a;
+  --text: #f8fafc;
+  --muted: #94a3b8;
+  --line: #334155;
+  --surface: #1e293b;
+  --surface-soft: #162032;
+  --surface-hover: #26344d;
+  --orange: #ff7647;
+  --orange-glow: rgba(255, 118, 71, 0.25);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.6);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -244,9 +260,9 @@ h1 {
 .typewriterText {
   background: linear-gradient(
     90deg,
-    #0f172a 0%,
-    #94a3b8 50%,
-    #0f172a 100%
+    var(--text) 0%,
+    var(--muted) 50%,
+    var(--text) 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
@@ -264,7 +280,7 @@ h1 {
 .cursor {
   display: inline-block;
   width: 0.12em;
-  background-color: #0f172a;
+  background-color: var(--text);
   animation: blink 0.8s step-end infinite;
   margin-left: 4px;
   height: 0.85em;
@@ -545,10 +561,10 @@ h1 {
   border-radius: var(--radius-sm);
   font: inherit;
   font-size: 0.85rem;
-  color: #202a3f;
+  color: var(--text);
   transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, background var(--transition);
   cursor: pointer;
-  box-shadow: 0px 4px 0px #cdd2e0; /* 3D solid shadow */
+  box-shadow: 0px 4px 0px var(--line); /* Soft shadow bound to line var */
   transform: translateY(0);
 }
 
@@ -590,7 +606,7 @@ h1 {
 .softBtn:hover,
 .chip:hover {
   transform: translateY(-2px);
-  box-shadow: 0px 6px 0px #b0b8d4;
+  box-shadow: 0px 6px 0px var(--line);
   background: var(--surface-hover);
 }
 

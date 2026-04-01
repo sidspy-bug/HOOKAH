@@ -4,9 +4,11 @@ type InfoModalProps = {
   type: "settings" | "agents" | "pricing" | "feedback";
   isOpen: boolean;
   onClose: () => void;
+  theme?: "light" | "dark";
+  onThemeChange?: (theme: "light" | "dark") => void;
 };
 
-export default function InfoModal({ type, isOpen, onClose }: InfoModalProps) {
+export default function InfoModal({ type, isOpen, onClose, theme, onThemeChange }: InfoModalProps) {
   if (!isOpen) return null;
 
   const renderContent = () => {
@@ -36,8 +38,16 @@ export default function InfoModal({ type, isOpen, onClose }: InfoModalProps) {
             </div>
             <div className="formGroup" style={{ marginTop: 12 }}>
               <label className="formLabel">Appearance</label>
-              <select className="formTextarea" style={{ height: "42px", padding: "0 12px" }}>
-                <option value="system">System Default</option>
+              <select 
+                className="formTextarea" 
+                style={{ height: "42px", padding: "0 12px" }}
+                value={theme || "light"}
+                onChange={(e) => {
+                  if (onThemeChange) {
+                    onThemeChange(e.target.value as "light" | "dark");
+                  }
+                }}
+              >
                 <option value="light">Light Mode</option>
                 <option value="dark">Dark Mode</option>
               </select>
