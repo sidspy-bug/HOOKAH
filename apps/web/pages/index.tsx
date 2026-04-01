@@ -36,6 +36,35 @@ export default function HomePage() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
+  const [typedText, setTypedText] = useState("");
+
+  React.useEffect(() => {
+    const fullText = "Discover research gaps with confidence";
+    let currentText = "";
+    let isDeleting = false;
+    let timerId: ReturnType<typeof setTimeout>;
+
+    const tick = () => {
+      if (!isDeleting && currentText.length < fullText.length) {
+        currentText = fullText.substring(0, currentText.length + 1);
+        setTypedText(currentText);
+        timerId = setTimeout(tick, 100);
+      } else if (!isDeleting && currentText.length === fullText.length) {
+        isDeleting = true;
+        timerId = setTimeout(tick, 5000); // Wait longer before deleting
+      } else if (isDeleting && currentText.length > 0) {
+        currentText = currentText.substring(0, currentText.length - 1);
+        setTypedText(currentText);
+        timerId = setTimeout(tick, 40);
+      } else if (isDeleting && currentText.length === 0) {
+        isDeleting = false;
+        timerId = setTimeout(tick, 1000); // Wait before re-typing
+      }
+    };
+    timerId = setTimeout(tick, 100);
+    return () => clearTimeout(timerId);
+  }, []);
+
   React.useEffect(() => {
     const stored = localStorage.getItem("gapforge_history");
     if (stored) {
@@ -127,7 +156,10 @@ export default function HomePage() {
 
         <main className="appMain">
           <header className="topNav">
-            <div className="brand">GapForge</div>
+            <div className="brandContainer">
+              <span className="shuttle">🚀</span>
+              <div className="brand">GapForge</div>
+            </div>
             <nav className="topLinks">
 
               <a href="#" onClick={(e) => { e.preventDefault(); setInfoModalType("pricing"); setSettingsOpen(true); }}>
@@ -153,7 +185,10 @@ export default function HomePage() {
 
             <section className="centerStage">
             <p className="logoMark">◆</p>
-            <h1>Discover research gaps with confidence</h1>
+            <h1 className="typewriterText">
+              {typedText}
+              <span className="cursor" />
+            </h1>
             <p className="subtext">
               Analyze academic papers, extract limitations, and get ranked
               project directions — all backed by citations.

@@ -136,14 +136,55 @@ a {
   z-index: 50;
 }
 
+.brandContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .brand {
-  font-weight: 800;
-  font-size: 1.15rem;
-  letter-spacing: -0.01em;
-  background: linear-gradient(135deg, var(--orange), #e04410);
+  font-weight: 900;
+  font-size: 1.8rem;
+  letter-spacing: -0.02em;
+  background: linear-gradient(
+    90deg, 
+    var(--orange) 0%, 
+    #ffcc00 50%, 
+    var(--orange) 100%
+  );
+  background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: shine 3s linear infinite;
+  filter: drop-shadow(0 4px 12px rgba(255, 90, 31, 0.3));
+}
+
+@keyframes shine {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.shuttle {
+  position: absolute;
+  font-size: 1.5rem;
+  top: 50%;
+  left: 0;
+  margin-top: -12px;
+  animation: flyAround 6s infinite ease-in-out;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@keyframes flyAround {
+  0% { transform: translate(-40px, 40px) rotate(0deg) scale(0.5); opacity: 0; }
+  10% { transform: translate(-20px, 0px) rotate(30deg) scale(1); opacity: 1; }
+  30% { transform: translate(50px, -25px) rotate(70deg) scale(1); }
+  50% { transform: translate(140px, -15px) rotate(110deg) scale(1.2); }
+  70% { transform: translate(180px, 15px) rotate(150deg) scale(1); }
+  90% { transform: translate(80px, 40px) rotate(220deg) scale(0.8); opacity: 1; }
+  100% { transform: translate(-40px, 40px) rotate(360deg) scale(0.5); opacity: 0; }
 }
 
 .topLinks {
@@ -219,6 +260,41 @@ h1 {
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.15;
+}
+
+.typewriterText {
+  background: linear-gradient(
+    90deg,
+    #0f172a 0%,
+    #94a3b8 50%,
+    #0f172a 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shineBlack 3s linear infinite;
+}
+
+@keyframes shineBlack {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.cursor {
+  display: inline-block;
+  width: 0.12em;
+  background-color: #0f172a;
+  animation: blink 0.8s step-end infinite;
+  margin-left: 4px;
+  height: 0.85em;
+  vertical-align: middle;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 .subtext {
