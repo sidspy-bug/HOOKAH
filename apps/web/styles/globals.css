@@ -1968,9 +1968,33 @@ h1 {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--bg);
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%);
   color: var(--text);
   overflow-x: hidden;
+  position: relative;
+}
+
+[data-theme="dark"] .marketingPage {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #172033 100%);
+}
+
+.mathParticle {
+  position: absolute;
+  color: var(--text);
+  opacity: 0.08;
+  font-family: 'Times New Roman', serif;
+  font-style: italic;
+  white-space: nowrap;
+  animation: floatUp linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(110vh) rotate(-10deg) scale(0.8); opacity: 0; }
+  10% { opacity: 0.15; }
+  80% { opacity: 0.15; }
+  100% { transform: translateY(-10vh) rotate(15deg) scale(1.2); opacity: 0; }
 }
 
 .marketingHero {
