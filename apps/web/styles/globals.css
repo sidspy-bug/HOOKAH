@@ -1088,6 +1088,39 @@ h1 {
   max-width: 1100px;
   margin: 0 auto;
   box-sizing: border-box;
+  overflow-y: auto;
+  height: 100%;
+  scroll-behavior: smooth;
+}
+
+/* ── Custom Premium Scrollbar ────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 10px;
+  border: 2px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: hsla(217, 33%, 30%, 0.8);
+  border: 2px solid var(--bg);
 }
 
 .resultsHeader {
