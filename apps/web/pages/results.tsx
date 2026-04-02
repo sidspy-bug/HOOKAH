@@ -9,6 +9,7 @@ import GapCard from "../components/GapCard";
 import DirectionCard from "../components/DirectionCard";
 import LimitationCard from "../components/LimitationCard";
 import type { AnalyzeResponse } from "../lib/types";
+import MathBackground from "../components/MathBackground";
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -88,6 +89,7 @@ export default function ResultsPage() {
       </Head>
 
       <div className="shell">
+        <MathBackground opacity={0.4} />
         <Sidebar
           onToggleHistory={() => setHistoryOpen(!historyOpen)}
           onOpenAgents={() => { setInfoModalType("agents"); setSettingsOpen(true); }}
@@ -104,23 +106,23 @@ export default function ResultsPage() {
         )}
 
         <main className="appMain">
-          <header className="topNav">
+          <header className="topNav animate-fadeInDown">
             <div className="brand">GapForge</div>
             <nav className="topLinks">
               <button
                 className="cta"
-                onClick={() => router.push("/")}
+                onClick={() => router.push("/dashboard")}
               >
-                ← New Analysis
+                ← Back to Dashboard
               </button>
             </nav>
           </header>
 
           <div className="resultsContainer">
             {/* Header */}
-            <div className="resultsHeader">
-              <button className="backBtn" onClick={() => router.push("/")}>
-                ← Back to home
+            <div className="resultsHeader animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
+              <button className="backBtn" onClick={() => router.push("/dashboard")}>
+                ← Back to Dashboard
               </button>
               <h1>Analysis Results</h1>
               <p className="subtext" style={{ textAlign: "left" }}>
@@ -136,9 +138,9 @@ export default function ResultsPage() {
             </div>
 
             {/* Stats Row */}
-            <div className="statsRow">
+            <div className="statsRow animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
               <div 
-                className={`statCard ${activeTab === 'papers' ? 'activeStat' : ''}`}
+                className={`statCard orange ${activeTab === 'papers' ? 'activeStat' : ''}`}
                 onClick={() => handleTabSwitch('papers')}
                 style={{ cursor: 'pointer', borderColor: activeTab === 'papers' ? 'var(--orange)' : '' }}
               >
@@ -148,7 +150,7 @@ export default function ResultsPage() {
                 <div className="statLabel">Papers Analyzed</div>
               </div>
               <div 
-                className={`statCard ${activeTab === 'limitations' ? 'activeStat' : ''}`}
+                className={`statCard purple ${activeTab === 'limitations' ? 'activeStat' : ''}`}
                 onClick={() => handleTabSwitch('limitations')}
                 style={{ cursor: 'pointer', borderColor: activeTab === 'limitations' ? 'var(--purple)' : '' }}
               >
@@ -158,7 +160,7 @@ export default function ResultsPage() {
                 <div className="statLabel">Limitations Found</div>
               </div>
               <div 
-                className={`statCard ${activeTab === 'gaps' ? 'activeStat' : ''}`}
+                className={`statCard teal ${activeTab === 'gaps' ? 'activeStat' : ''}`}
                 onClick={() => handleTabSwitch('gaps')}
                 style={{ cursor: 'pointer', borderColor: activeTab === 'gaps' ? 'var(--teal)' : '' }}
               >
@@ -168,7 +170,7 @@ export default function ResultsPage() {
                 <div className="statLabel">Gaps Identified</div>
               </div>
               <div 
-                className={`statCard ${activeTab === 'directions' ? 'activeStat' : ''}`}
+                className={`statCard green ${activeTab === 'directions' ? 'activeStat' : ''}`}
                 onClick={() => handleTabSwitch('directions')}
                 style={{ cursor: 'pointer', borderColor: activeTab === 'directions' ? 'var(--green)' : '' }}
               >
@@ -180,7 +182,7 @@ export default function ResultsPage() {
             </div>
 
             {/* Tab Navigation */}
-            <div className="actionRow" style={{ justifyContent: "flex-start", marginBottom: 20 }}>
+            <div className="actionRow animate-fadeInUp" style={{ justifyContent: "flex-start", marginBottom: 20, animationDelay: '0.3s' }}>
               {tabs.map((tab) => (
                 <button
                   key={tab.key}
@@ -209,7 +211,7 @@ export default function ResultsPage() {
             </div>
 
             {/* Single Panel View (formerly 2x2 Grid) */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 10 }}>
+            <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 10, animationDelay: '0.4s' }}>
               
               {/* Top Left: Directions */}
               <div 

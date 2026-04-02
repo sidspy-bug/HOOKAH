@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import React, { useEffect, useState, useMemo } from 'react';
+import MathBackground from '../components/MathBackground';
 import { HowItWorksFlow } from '../components/HowItWorksFlow';
 
 const MATH_EQUATIONS = [
@@ -10,32 +11,6 @@ const MATH_EQUATIONS = [
   "σ² = ∑(x_i - μ)²/N", "H(X) = -∑P(x)logP(x)"
 ];
 
-const MathBackground = () => {
-  const particles = useMemo(() => {
-    return Array.from({ length: 15 }).map((_, i) => ({
-      id: i,
-      equation: MATH_EQUATIONS[Math.floor(Math.random() * MATH_EQUATIONS.length)],
-      left: Math.random() * 100 + "%",
-      fontSize: (Math.random() * 1.5 + 1.2) + "rem",
-      duration: (Math.random() * 20 + 20) + "s",
-      delay: (Math.random() * -30) + "s"
-    }));
-  }, []);
-
-  return (
-    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', overflow: 'hidden', zIndex: 0, pointerEvents: 'none' }}>
-      {particles.map(p => (
-        <div 
-          key={p.id} 
-          className="mathParticle" 
-          style={{ left: p.left, fontSize: p.fontSize, animationDuration: p.duration, animationDelay: p.delay }}
-        >
-          {p.equation}
-        </div>
-      ))}
-    </div>
-  );
-};
 
 export default function LandingPage() {
   const [theme, setTheme] = useState<"light" | "dark">("light");

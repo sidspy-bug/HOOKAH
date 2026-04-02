@@ -9,6 +9,8 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import { analyzeResearchGaps } from "../lib/api";
 import DomainSelector from "../components/DomainSelector";
 import type { AnalyzeResponse } from "../lib/types";
+import MathBackground from "../components/MathBackground";
+import { BespokeLogo } from "../components/BespokeLogo";
 
 const quickActions = [
   { label: "AI Mental Health", topic: "AI assistants for student mental health support", keywords: ["longitudinal", "fairness", "explainability"], domain: "health-ai" },
@@ -157,6 +159,7 @@ export default function HomePage() {
       {loading && <LoadingSpinner />}
 
       <div className="shell">
+        <MathBackground opacity={0.4} />
         <Sidebar
           onToggleHistory={() => setHistoryOpen(!historyOpen)}
           onOpenAgents={() => { setInfoModalType("agents"); setSettingsOpen(true); }}
@@ -166,10 +169,10 @@ export default function HomePage() {
 
         <main className="appMain">
           <header className="topNav">
-            <div className="brandContainer">
+            <div className="brandContainer animate-fadeInDown">
               <div className="brand">GapForge</div>
             </div>
-            <nav className="topLinks">
+            <nav className="topLinks animate-fadeInDown" style={{ animationDelay: '0.1s' }}>
               <a href="#" onClick={(e) => { e.preventDefault(); setInfoModalType("pricing"); setSettingsOpen(true); }}>
                 Pricing
               </a>
@@ -191,12 +194,13 @@ export default function HomePage() {
               />
             )}
 
-            <section className="centerStage">
-            <p className="logoMark">◆</p>
-            <h1 className="typewriterText">
-              {typedText}
-              <span className="cursor" />
-            </h1>
+            <section className="centerStage animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
+            <div style={{ minHeight: '4.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <h1 className="typewriterText">
+                {typedText}
+                <span className="cursor" />
+              </h1>
+            </div>
             <p className="subtext">
               Analyze academic papers, extract limitations, and get ranked
               project directions — all backed by citations.
