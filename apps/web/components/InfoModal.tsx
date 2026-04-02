@@ -69,20 +69,75 @@ export default function InfoModal({ type, isOpen, onClose, theme, onThemeChange 
           </div>
         );
       case "agents":
+        const [activeStep, setActiveStep] = React.useState(0);
+        
+        React.useEffect(() => {
+          const interval = setInterval(() => {
+            setActiveStep((prev) => (prev + 1) % 7);
+          }, 2000);
+          return () => clearInterval(interval);
+        }, []);
+
+        const pipelineAgents = [
+          { id: 1, name: "Paper Analyst", desc: "Selects relevant papers", icon: "📄", color: "green" },
+          { id: 2, name: "Limitation Extractor", desc: "Extracts weaknesses", icon: "🔍", color: "blue" },
+          { id: 3, name: "Gap Synthesizer", desc: "Clusters research signals", icon: "✨", color: "purple" },
+          { id: 4, name: "Novelty Validator", desc: "Scores novelty & impact", icon: "🚀", color: "orange" },
+          { id: 5, name: "Scope Generator", desc: "Produces hypothesis & scope", icon: "📝", color: "teal" },
+          { id: 6, name: "Ranking Agent", desc: "Computes final weights", icon: "📊", color: "red" }
+        ];
+
         return (
           <div className="modalBody">
-            <h3 style={{ marginBottom: 16 }}>Pipeline Agents</h3>
-            <p className="muted" style={{ marginBottom: 16 }}>
-              GapForge coordinates a team of specialized AI agents working together to analyze inputs and discover research gaps autonomously.
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ margin: 0 }}>Pipeline Engine</h3>
+              <div style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--orange)', letterSpacing: '0.1em' }}>
+                {activeStep === 0 ? "Initializing..." : `Step ${activeStep}/6: ${pipelineAgents[activeStep-1]?.name}`}
+              </div>
+            </div>
+            
+            <p className="muted" style={{ marginBottom: 20, fontSize: '0.9rem' }}>
+              GapForge coordinates specialized AI agents in a sequential pipeline to discover and validate research gaps autonomously.
             </p>
-            <ul className="agentList">
-              <li><span className="agentDot green" /> <strong>Paper Analyst</strong> – selects relevant papers</li>
-              <li><span className="agentDot blue" /> <strong>Limitation Extractor</strong> – extracts limitations &amp; future work</li>
-              <li><span className="agentDot purple" /> <strong>Gap Synthesizer</strong> – clusters signals into gap candidates</li>
-              <li><span className="agentDot orange" /> <strong>Novelty Validator</strong> – scores novelty, impact &amp; feasibility</li>
-              <li><span className="agentDot teal" /> <strong>Scope Generator</strong> – produces hypothesis &amp; project scope</li>
-              <li><span className="agentDot red" /> <strong>Ranking Agent</strong> – computes weighted scores &amp; ranks</li>
-            </ul>
+
+            <div className="agentPipelineContainer">
+              {pipelineAgents.map((agent, i) => {
+                const stepIdx = i + 1;
+                const isActive = activeStep === stepIdx;
+                const isCompleted = activeStep > stepIdx;
+                
+                return (
+                  <div key={agent.id} style={{ position: 'relative' }}>
+                    <div className={`agentStep ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}>
+                      <div className="agentNodeIcon" style={{ color: `var(--${agent.color}, var(--orange))` }}>
+                        {agent.icon}
+                      </div>
+                      <div className="agentNodeContent">
+                        <h4>{agent.name}</h4>
+                        <p>{agent.desc}</p>
+                      </div>
+                      {isActive && <div className="nodePulse" />}
+                    </div>
+                    
+                    {i < pipelineAgents.length - 1 && (
+                      <div className="pipelineConnector" style={{ height: '22px', top: '100%', left: '42px' }}>
+                        {isActive && <div className="dataParticle" />}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ marginTop: 24, textAlign: 'center' }}>
+              <button 
+                className="softBtn" 
+                style={{ width: '100%', justifyContent: 'center' }}
+                onClick={() => setActiveStep(0)}
+              >
+                Restart Simulation
+              </button>
+            </div>
           </div>
         );
       case "pricing":
