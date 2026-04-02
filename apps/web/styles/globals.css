@@ -2279,16 +2279,7 @@ h1 {
 
 /* ── How It Works Flowchart ─────────────────────────── */
 
-.flowContainer {
-  margin-top: 40px;
-  width: 100%;
-  padding: 40px 20px;
-  background: transparent;
-  border-radius: var(--radius);
-  border: 1px solid var(--line);
-  position: relative;
-  overflow: hidden;
-}
+/* (Consolidated into .flowContainer below) */
 
 .flowSvg {
   width: 100%;
@@ -2420,6 +2411,189 @@ h1 {
   
   .mobileNode:last-child::after {
     display: none;
+  }
+}
+
+/* ── How It Works 3D Cards ───────────────────────────── */
+
+.flowContainer {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: 60px auto;
+  min-height: 500px;
+  perspective: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.flowSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.flowPath {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 2;
+  stroke-dasharray: 8, 8;
+  animation: flowLine 20s linear infinite;
+}
+
+@keyframes flowLine {
+  to { stroke-dashoffset: -200; }
+}
+
+.flowDataParticle {
+  fill: var(--orange);
+  filter: drop-shadow(0 0 8px var(--orange));
+}
+
+.cardGrid3d {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px 100px;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 20px;
+}
+
+.card3dWrap {
+  perspective: 1000px;
+  transition: transform 0.4s var(--transition);
+}
+
+.card3d {
+  background: var(--surface);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  /* Remove old white border */
+  border: none;
+  border-radius: var(--radius);
+  padding: 24px;
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  
+  /* Initial subtle 3D shadow */
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+    
+  transition: transform 0.15s ease-out, box-shadow 0.3s ease;
+  transform-style: preserve-3d;
+  cursor: default;
+  position: relative;
+  /* Revolving floating animation */
+  animation: revolve3d 8s ease-in-out infinite;
+}
+
+[data-theme="dark"] .card3d {
+  background: var(--surface-soft);
+}
+
+/* Luminous 3D Border Layer Removed */
+.card3d:hover {
+  animation-play-state: paused;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px var(--orange);
+}
+
+[data-theme="dark"] .card3d:hover {
+  box-shadow: 
+    calc(var(--tilt-y) * -2px) calc(var(--tilt-x) * 2px) 50px rgba(0, 0, 0, 0.5), 
+    0 0 0 2px var(--orange);
+}
+
+.card3dContent {
+  transform: translateZ(60px); /* Deeper parallax for 3D effect */
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  transform-style: preserve-3d;
+  z-index: 10;
+}
+
+.card3dIcon {
+  font-size: 2.6rem; /* Slightly larger */
+  background: var(--orange-glow);
+  width: 68px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  transform: translateZ(25px); /* Stronger pop-out */
+}
+
+.card3dText {
+  text-align: left;
+}
+
+.card3dTitle {
+  font-size: 1.25rem; /* Larger for visibility */
+  font-weight: 800;
+  margin-bottom: 6px;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .card3dTitle {
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.card3dDesc {
+  font-size: 0.95rem; /* Larger */
+  color: var(--text); /* Higher contrast (was muted) */
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .card3dDesc {
+  color: #e2e8f0;
+}
+
+/* Connectors for 2x2 Grid */
+.flowPath {
+  stroke-width: 2.5;
+  stroke: var(--line);
+  stroke-dasharray: 6;
+  opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+  .flowContainer {
+    perspective: none;
+    min-height: auto;
+  }
+  .flowSvg {
+    display: none;
+  }
+  .cardGrid3d {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 0;
+  }
+  .card3dWrap {
+    perspective: none;
+  }
+  .card3d {
+    height: auto;
+    padding: 20px;
+    transform: none !important;
   }
 }
 
