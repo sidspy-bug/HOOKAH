@@ -4,10 +4,34 @@ type InfoModalProps = {
   type: "settings" | "agents" | "pricing" | "feedback";
   isOpen: boolean;
   onClose: () => void;
+  theme?: "light" | "dark";
+  onThemeChange?: (theme: "light" | "dark") => void;
 };
 
-export default function InfoModal({ type, isOpen, onClose }: InfoModalProps) {
+export default function InfoModal({ type, isOpen, onClose, theme, onThemeChange }: InfoModalProps) {
+  const [activeStep, setActiveStep] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!isOpen || type !== "agents") {
+      setActiveStep(0);
+      return;
+    }
+    const interval = setInterval(() => {
+      setActiveStep((prev) => (prev + 1) % 7);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [isOpen, type]);
+
   if (!isOpen) return null;
+
+  const pipelineAgents = [
+    { id: 1, name: "Paper Analyst", desc: "Selects relevant papers", icon: "📄", color: "green" },
+    { id: 2, name: "Limitation Extractor", desc: "Extracts weaknesses", icon: "🔍", color: "blue" },
+    { id: 3, name: "Gap Synthesizer", desc: "Clusters research signals", icon: "✨", color: "purple" },
+    { id: 4, name: "Novelty Validator", desc: "Scores novelty & impact", icon: "🚀", color: "orange" },
+    { id: 5, name: "Scope Generator", desc: "Produces hypothesis & scope", icon: "📝", color: "teal" },
+    { id: 6, name: "Ranking Agent", desc: "Computes final weights", icon: "📊", color: "red" },
+  ];
 
   const renderContent = () => {
     switch (type) {
@@ -36,8 +60,16 @@ export default function InfoModal({ type, isOpen, onClose }: InfoModalProps) {
             </div>
             <div className="formGroup" style={{ marginTop: 12 }}>
               <label className="formLabel">Appearance</label>
-              <select className="formTextarea" style={{ height: "42px", padding: "0 12px" }}>
-                <option value="system">System Default</option>
+              <select 
+                className="formTextarea" 
+                style={{ height: "42px", padding: "0 12px" }}
+                value={theme || "light"}
+                onChange={(e) => {
+                  if (onThemeChange) {
+                    onThemeChange(e.target.value as "light" | "dark");
+                  }
+                }}
+              >
                 <option value="light">Light Mode</option>
                 <option value="dark">Dark Mode</option>
               </select>
@@ -61,18 +93,55 @@ export default function InfoModal({ type, isOpen, onClose }: InfoModalProps) {
       case "agents":
         return (
           <div className="modalBody">
-            <h3 style={{ marginBottom: 16 }}>Pipeline Agents</h3>
-            <p className="muted" style={{ marginBottom: 16 }}>
-              GapForge coordinates a team of specialized AI agents working together to analyze inputs and discover research gaps autonomously.
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <h3 style={{ margin: 0 }}>Pipeline Engine</h3>
+              <div style={{ fontSize: "0.7rem", textTransform: "uppercase", color: "var(--orange)", letterSpacing: "0.1em" }}>
+                {activeStep === 0 ? "Initializing..." : `Step ${activeStep}/6: ${pipelineAgents[activeStep - 1]?.name}`}
+              </div>
+            </div>
+
+            <p className="muted" style={{ marginBottom: 20, fontSize: "0.9rem" }}>
+              GapForge coordinates specialized AI agents in a sequential pipeline to discover and validate research gaps autonomously.
             </p>
-            <ul className="agentList">
-              <li><span className="agentDot green" /> <strong>Paper Analyst</strong> – selects relevant papers</li>
-              <li><span className="agentDot blue" /> <strong>Limitation Extractor</strong> – extracts limitations &amp; future work</li>
-              <li><span className="agentDot purple" /> <strong>Gap Synthesizer</strong> – clusters signals into gap candidates</li>
-              <li><span className="agentDot orange" /> <strong>Novelty Validator</strong> – scores novelty, impact &amp; feasibility</li>
-              <li><span className="agentDot teal" /> <strong>Scope Generator</strong> – produces hypothesis &amp; project scope</li>
-              <li><span className="agentDot red" /> <strong>Ranking Agent</strong> – computes weighted scores &amp; ranks</li>
-            </ul>
+
+            <div className="agentPipelineContainer">
+              {pipelineAgents.map((agent, i) => {
+                const stepIdx = i + 1;
+                const isActive = activeStep === stepIdx;
+                const isCompleted = activeStep > stepIdx;
+
+                return (
+                  <div key={agent.id} style={{ position: "relative" }}>
+                    <div className={`agentStep ${isActive ? "active" : ""} ${isCompleted ? "completed" : ""}`}>
+                      <div className="agentNodeIcon" style={{ color: `var(--${agent.color}, var(--orange))` }}>
+                        {agent.icon}
+                      </div>
+                      <div className="agentNodeContent">
+                        <h4>{agent.name}</h4>
+                        <p>{agent.desc}</p>
+                      </div>
+                      {isActive && <div className="nodePulse" />}
+                    </div>
+
+                    {i < pipelineAgents.length - 1 && (
+                      <div className="pipelineConnector" style={{ height: "22px", top: "100%", left: "42px" }}>
+                        {isActive && <div className="dataParticle" />}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ marginTop: 24, textAlign: "center" }}>
+              <button
+                className="softBtn"
+                style={{ width: "100%", justifyContent: "center" }}
+                onClick={() => setActiveStep(0)}
+              >
+                Restart Simulation
+              </button>
+            </div>
           </div>
         );
       case "pricing":
@@ -81,34 +150,54 @@ export default function InfoModal({ type, isOpen, onClose }: InfoModalProps) {
             <div className="pricingGrid">
               <div className="pricingCard">
                 <h4>Free</h4>
-                <div className="pricingPrice">$0<span>/mo</span></div>
+                <div className="pricingPrice">₹0<span>/mo</span></div>
+                <p className="muted" style={{ margin: "6px 0 10px", fontSize: "0.82rem" }}>
+                  For basic exploration
+                </p>
                 <ul className="pricingFeatures">
-                  <li><span className="checkIcon">✓</span> 5 pipeline runs/day</li>
-                  <li><span className="checkIcon">✓</span> Basic directions</li>
-                  <li><span className="checkIcon">✓</span> Local dataset access</li>
+                  <li><span className="checkIcon">✓</span> 2 papers/day</li>
+                  <li><span className="checkIcon">✓</span> Standard analysis (limited depth)</li>
+                  <li><span className="checkIcon">✓</span> No priority processing</li>
                 </ul>
+                <p className="muted" style={{ marginTop: "10px", fontSize: "0.78rem" }}>
+                  For quick understanding and trial usage
+                </p>
                 <button className="pricingBtn">Current Plan</button>
               </div>
               <div className="pricingCard pro">
                 <div className="pricingBadge">Recommended</div>
                 <h4>Pro</h4>
-                <div className="pricingPrice">$9<span>/mo</span></div>
+                <div className="pricingPrice">₹299<span>/mo</span></div>
+                <p className="muted" style={{ margin: "6px 0 10px", fontSize: "0.82rem" }}>
+                  For serious students &amp; developers
+                </p>
                 <ul className="pricingFeatures">
-                  <li><span className="checkIcon">✓</span> Unlimited runs</li>
-                  <li><span className="checkIcon">✓</span> Custom parameters</li>
-                  <li><span className="checkIcon">✓</span> PDF/Markdown export</li>
+                  <li><span className="checkIcon">✓</span> Unlimited papers</li>
+                  <li><span className="checkIcon">✓</span> Full structured insights (gaps + reasoning + directions)</li>
+                  <li><span className="checkIcon">✓</span> Insight scoring (novelty, feasibility, impact)</li>
+                  <li><span className="checkIcon">✓</span> Faster processing</li>
                 </ul>
+                <p className="muted" style={{ marginTop: "10px", fontSize: "0.78rem" }}>
+                  For building projects and deeper research work
+                </p>
                 <button className="pricingBtn proBtn">Upgrade to Pro</button>
               </div>
               <div className="pricingCard">
-                <h4>Enterprise</h4>
-                <div className="pricingPrice">$49<span>/mo</span></div>
+                <h4>Research+</h4>
+                <div className="pricingPrice">₹999<span>/mo</span></div>
+                <p className="muted" style={{ margin: "6px 0 10px", fontSize: "0.82rem" }}>
+                  For advanced research &amp; institutions
+                </p>
                 <ul className="pricingFeatures">
-                  <li><span className="checkIcon">✓</span> Team workspaces</li>
-                  <li><span className="checkIcon">✓</span> Custom data ingest</li>
-                  <li><span className="checkIcon">✓</span> Priority support</li>
+                  <li><span className="checkIcon">✓</span> Advanced reasoning depth (more refined insights)</li>
+                  <li><span className="checkIcon">✓</span> Priority processing (faster results)</li>
+                  <li><span className="checkIcon">✓</span> Critique-enhanced outputs (higher reliability)</li>
+                  <li><span className="checkIcon">✓</span> Future features (multi-paper analysis, advanced tools)</li>
                 </ul>
-                <button className="pricingBtn">Contact Sales</button>
+                <p className="muted" style={{ marginTop: "10px", fontSize: "0.78rem" }}>
+                  For high-impact research and decision-making
+                </p>
+                <button className="pricingBtn">Upgrade to Research+</button>
               </div>
             </div>
           </div>

@@ -7,16 +7,17 @@ class ScopeGenerator:
         theme = gap.get("theme", "general")
 
         title = f"{topic}: {self._title_suffix(theme)}"
-        hypothesis = f"Addressing this gap can improve measurable outcomes versus baseline methods: {statement}"
-        short_scope = (
-            "8-10 week scope: (1) define benchmark + baseline, (2) implement one focused method, "
-            "(3) evaluate on 2-3 metrics, (4) report error analysis and limitations."
+        evidence = f"Derived from the identified gap: {statement}"
+        why_it_matters = (
+            "Addressing this gap provides a foundational step to resolve the inconsistencies "
+            "and methodological limitations currently observed in the field."
         )
 
         return {
             "title": title,
-            "hypothesis": hypothesis,
-            "short_scope": short_scope,
+            "evidence": evidence,
+            "why_it_matters": why_it_matters,
+            "confidence": "medium",
         }
 
     @staticmethod

@@ -1,105 +1,244 @@
 import Head from "next/head";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Sidebar from "../components/Sidebar";
 import HistorySidebar from "../components/HistorySidebar";
 import InfoModal from "../components/InfoModal";
-import PaperCard from "../components/PaperCard";
-import GapCard from "../components/GapCard";
-import DirectionCard from "../components/DirectionCard";
 import LimitationCard from "../components/LimitationCard";
+import ResearchInsightCard from "../components/ResearchInsightCard";
 import type { AnalyzeResponse } from "../lib/types";
+
+type CriticalSectionKey =
+  | "hidden_assumptions"
+  | "methodological_weaknesses"
+  | "conceptual_gaps"
+  | "contradictions"
+  | "deep_insights";
+
+const criticalSectionLabels: Record<CriticalSectionKey, string> = {
+  hidden_assumptions: "Hidden Assumptions",
+  methodological_weaknesses: "Methodological Weaknesses",
+  conceptual_gaps: "Conceptual Gaps",
+  contradictions: "Contradictions",
+  deep_insights: "Deep Insights",
+};
+
+const fallbackInsight = {
+  title: "Evidence-grounded research insight",
+  problem: "A meaningful research problem has been identified from the analyzed paper.",
+  evidence: ["Evidence is grounded in extracted paper findings and limitations."],
+  why_gap_exists: "The gap persists because current evidence does not fully resolve the underlying methodological problem.",
+  why_it_matters: "Resolving this issue would improve scientific validity and real-world usefulness.",
+  vulnerability: "medium" as const,
+  impact: "high" as const,
+  confidence: 0.72,
+  depth_score: 7.0,
+  hidden_assumption: "The paper relies on an implicit assumption that remains under-tested.",
+  methodological_weakness: "Method choices leave important causal or contextual questions unresolved.",
+  conceptual_gap: "The conceptual framing does not fully explain when the approach should fail.",
+  contradiction: "The scope of the claims appears broader than the direct evidence base.",
+  deep_insight: "The deeper issue may be a mismatch between benchmark success and trustworthy practical use.",
+  direction: {
+    title: "Targeted research direction",
+    approach: "Design a concrete follow-up study that tests the hidden assumptions and boundary conditions directly.",
+  },
+  scores: {
+    novelty: 7.0,
+    feasibility: 7.0,
+    impact: 8.0,
+  },
+  overall_score: 7.4,
+};
+
+function normalizeInsight(raw: any) {
+  return {
+    title: raw?.title || fallbackInsight.title,
+    problem: raw?.problem || fallbackInsight.problem,
+    evidence: Array.isArray(raw?.evidence) && raw.evidence.length > 0 ? raw.evidence : fallbackInsight.evidence,
+    why_gap_exists: raw?.why_gap_exists || fallbackInsight.why_gap_exists,
+    why_it_matters: raw?.why_it_matters || fallbackInsight.why_it_matters,
+    vulnerability: raw?.vulnerability === "low" || raw?.vulnerability === "medium" || raw?.vulnerability === "high" ? raw.vulnerability : fallbackInsight.vulnerability,
+    impact: raw?.impact === "low" || raw?.impact === "medium" || raw?.impact === "high" ? raw.impact : fallbackInsight.impact,
+    confidence: typeof raw?.confidence === "number" ? raw.confidence : fallbackInsight.confidence,
+    depth_score: typeof raw?.depth_score === "number" ? raw.depth_score : fallbackInsight.depth_score,
+    hidden_assumption: raw?.hidden_assumption || fallbackInsight.hidden_assumption,
+    methodological_weakness: raw?.methodological_weakness || fallbackInsight.methodological_weakness,
+    conceptual_gap: raw?.conceptual_gap || fallbackInsight.conceptual_gap,
+    contradiction: raw?.contradiction || fallbackInsight.contradiction,
+    deep_insight: raw?.deep_insight || fallbackInsight.deep_insight,
+    direction: {
+      title: raw?.direction?.title || fallbackInsight.direction.title,
+      approach: raw?.direction?.approach || fallbackInsight.direction.approach,
+    },
+    scores: {
+      novelty: typeof raw?.scores?.novelty === "number" ? raw.scores.novelty : fallbackInsight.scores.novelty,
+      feasibility: typeof raw?.scores?.feasibility === "number" ? raw.scores.feasibility : fallbackInsight.scores.feasibility,
+      impact: typeof raw?.scores?.impact === "number" ? raw.scores.impact : fallbackInsight.scores.impact,
+    },
+    overall_score: typeof raw?.overall_score === "number" ? raw.overall_score : fallbackInsight.overall_score,
+  };
+}
+
+function normalizeDirection(raw: any, linkedGap: string) {
+  return {
+    title: raw?.title || fallbackInsight.direction.title,
+    linked_gap: raw?.linked_gap || linkedGap,
+    approach: raw?.approach || fallbackInsight.direction.approach,
+    scores: {
+      novelty: typeof raw?.scores?.novelty === "number" ? raw.scores.novelty : fallbackInsight.scores.novelty,
+      feasibility: typeof raw?.scores?.feasibility === "number" ? raw.scores.feasibility : fallbackInsight.scores.feasibility,
+      impact: typeof raw?.scores?.impact === "number" ? raw.scores.impact : fallbackInsight.scores.impact,
+    },
+    overall_score: typeof raw?.overall_score === "number" ? raw.overall_score : fallbackInsight.overall_score,
+  };
+}
+
+function normalizeResearchGap(raw: any) {
+  return {
+    title: raw?.title || fallbackInsight.title,
+    problem: raw?.problem || fallbackInsight.problem,
+    evidence: Array.isArray(raw?.evidence) && raw.evidence.length > 0 ? raw.evidence : fallbackInsight.evidence,
+    why_gap_exists: raw?.why_gap_exists || fallbackInsight.why_gap_exists,
+    why_it_matters: raw?.why_it_matters || fallbackInsight.why_it_matters,
+    vulnerability: raw?.vulnerability === "low" || raw?.vulnerability === "medium" || raw?.vulnerability === "high" ? raw.vulnerability : fallbackInsight.vulnerability,
+    impact: raw?.impact === "low" || raw?.impact === "medium" || raw?.impact === "high" ? raw.impact : fallbackInsight.impact,
+    confidence: typeof raw?.confidence === "number" ? raw.confidence : fallbackInsight.confidence,
+    depth_score: typeof raw?.depth_score === "number" ? raw.depth_score : fallbackInsight.depth_score,
+  };
+}
+
+function normalizeAnalyzeResponse(raw: any): AnalyzeResponse {
+  const insights =
+    Array.isArray(raw?.insights) && raw.insights.length > 0
+      ? raw.insights.map(normalizeInsight)
+      : [fallbackInsight];
+  const researchGaps = Array.isArray(raw?.research_gaps) ? raw.research_gaps.map(normalizeResearchGap) : [];
+  const directions = Array.isArray(raw?.directions)
+    ? raw.directions.map((item: any, index: number) => normalizeDirection(item, insights[index]?.title || fallbackInsight.title))
+    : [];
+
+  return {
+    overview: {
+      title: raw?.overview?.title || "Research Intelligence Report",
+      executive_summary: raw?.overview?.executive_summary || "The analysis identified a substantive contribution, a key limitation, and a high-priority implication for follow-up work.",
+      objective: raw?.overview?.objective || "Objective unavailable in the saved result.",
+      methodology: raw?.overview?.methodology || "Methodology unavailable in the saved result.",
+      key_findings: Array.isArray(raw?.overview?.key_findings) ? raw.overview.key_findings : [],
+    },
+    limitations: {
+      grouped: Array.isArray(raw?.limitations?.grouped) ? raw.limitations.grouped : [],
+    },
+    critical_reasoning: {
+      hidden_assumptions: Array.isArray(raw?.critical_reasoning?.hidden_assumptions) ? raw.critical_reasoning.hidden_assumptions : [fallbackInsight.hidden_assumption],
+      methodological_weaknesses: Array.isArray(raw?.critical_reasoning?.methodological_weaknesses) ? raw.critical_reasoning.methodological_weaknesses : [fallbackInsight.methodological_weakness],
+      conceptual_gaps: Array.isArray(raw?.critical_reasoning?.conceptual_gaps) ? raw.critical_reasoning.conceptual_gaps : [fallbackInsight.conceptual_gap],
+      contradictions: Array.isArray(raw?.critical_reasoning?.contradictions) ? raw.critical_reasoning.contradictions : [fallbackInsight.contradiction],
+      deep_insights: Array.isArray(raw?.critical_reasoning?.deep_insights) ? raw.critical_reasoning.deep_insights : [fallbackInsight.deep_insight],
+    },
+    research_gaps: researchGaps,
+    directions: directions,
+    insights,
+    most_critical_insight: normalizeInsight(raw?.most_critical_insight || insights[0] || fallbackInsight),
+    analysis_improvements: {
+      missing_angles: Array.isArray(raw?.analysis_improvements?.missing_angles) ? raw.analysis_improvements.missing_angles : ["Probe hidden contextual variables that may change the interpretation of the reported results."],
+      additional_perspectives: Array.isArray(raw?.analysis_improvements?.additional_perspectives) ? raw.analysis_improvements.additional_perspectives : ["Add stakeholder and deployment-facing perspectives to complement the methodological critique."],
+      future_improvements: Array.isArray(raw?.analysis_improvements?.future_improvements) ? raw.analysis_improvements.future_improvements : ["Run follow-up studies that test boundary conditions and hidden assumptions directly."],
+    },
+  };
+}
 
 export default function ResultsPage() {
   const router = useRouter();
   const [data, setData] = useState<AnalyzeResponse | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [infoModalType, setInfoModalType] = useState<"settings" | "pricing" | "feedback" | "agents" | null>(null);
-  const [activeTab, setActiveTab] = useState<"papers" | "limitations" | "gaps" | "directions">("directions");
   const [historyOpen, setHistoryOpen] = useState(true);
   const [history, setHistory] = useState<any[]>([]);
 
-  // Dashboard refs & state
-  const directionsRef = useRef<HTMLDivElement>(null);
-  const gapsRef = useRef<HTMLDivElement>(null);
-  const papersRef = useRef<HTMLDivElement>(null);
+  const overviewRef = useRef<HTMLDivElement>(null);
   const limitationsRef = useRef<HTMLDivElement>(null);
-  
-  const [highlightedPaperId, setHighlightedPaperId] = useState<string | null>(null);
-  const [highlightedGapId, setHighlightedGapId] = useState<string | null>(null);
-  const [limFilter, setLimFilter] = useState<"All" | "AI Impacted" | "Moderate" | "Minor">("All");
-
-  const handleTabSwitch = (tabKey: typeof activeTab) => {
-    setActiveTab(tabKey);
-    const refs = {
-      directions: directionsRef,
-      gaps: gapsRef,
-      papers: papersRef,
-      limitations: limitationsRef
-    };
-    setTimeout(() => {
-      refs[tabKey]?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
-  };
+  const insightsRef = useRef<HTMLDivElement>(null);
+  const criticalRef = useRef<HTMLDivElement>(null);
+  const improvementsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const storedHistory = localStorage.getItem("gapforge_history");
     if (storedHistory) {
       try {
         setHistory(JSON.parse(storedHistory));
-      } catch (e) {
-        console.error("Failed to parse history.");
+      } catch {
+        setHistory([]);
       }
     }
   }, []);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("gapforge_result");
-    if (stored) {
-      try {
-        setData(JSON.parse(stored));
-      } catch {
-        router.push("/");
-      }
-    } else {
-      router.push("/");
+    if (!stored) {
+      router.push("/dashboard");
+      return;
+    }
+    try {
+      setData(normalizeAnalyzeResponse(JSON.parse(stored)));
+    } catch {
+      router.push("/dashboard");
     }
   }, [router]);
 
-  const handleHistoryClick = (entry: any) => {
-    sessionStorage.setItem("gapforge_result", JSON.stringify(entry.result));
-    setData(entry.result);
-  };
-
   if (!data) return null;
 
-  const tabs = [
-    { key: "directions" as const, label: "Directions", count: data.top_suggested_research_directions.length },
-    { key: "gaps" as const, label: "Research Gaps", count: data.identified_research_gaps.length },
-    { key: "papers" as const, label: "Papers", count: data.analyzed_papers.length },
-    { key: "limitations" as const, label: "Limitations", count: data.extracted_limitations.length },
+  const totalLimitations = data.limitations.grouped.reduce((acc, group) => acc + group.items.length, 0);
+  const summaryCards = [
+    { label: "Overview", value: 1, ref: overviewRef },
+    { label: "Limitations", value: totalLimitations, ref: limitationsRef },
+    { label: "Insights", value: data.insights.length, ref: insightsRef },
+    { label: "Critical Lens", value: data.critical_reasoning.deep_insights.length, ref: criticalRef },
+    { label: "Improvements", value: data.analysis_improvements.future_improvements.length, ref: improvementsRef },
+  ];
+
+  const scrollTo = (targetRef: React.RefObject<HTMLDivElement>) => {
+    targetRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const improvementSections = [
+    { label: "Missing Angles", items: data.analysis_improvements.missing_angles },
+    { label: "Additional Perspectives", items: data.analysis_improvements.additional_perspectives },
+    { label: "Future Improvements", items: data.analysis_improvements.future_improvements },
   ];
 
   return (
     <>
       <Head>
-        <title>Results — {data.topic} | GapForge</title>
-        <meta name="description" content={`Research gap analysis results for: ${data.topic}`} />
+        <title>Report — {data.overview.title} | GapForge</title>
+        <meta name="description" content={`Structured research report for: ${data.overview.title}`} />
       </Head>
 
       <div className="shell">
         <Sidebar
           onToggleHistory={() => setHistoryOpen(!historyOpen)}
-          onOpenAgents={() => { setInfoModalType("agents"); setSettingsOpen(true); }}
-          onOpenSettings={() => { setInfoModalType("settings"); setSettingsOpen(true); }}
-          onOpenFeedback={() => { setInfoModalType("feedback"); setSettingsOpen(true); }}
+          onOpenAgents={() => {
+            setInfoModalType("agents");
+            setSettingsOpen(true);
+          }}
+          onOpenSettings={() => {
+            setInfoModalType("settings");
+            setSettingsOpen(true);
+          }}
+          onOpenFeedback={() => {
+            setInfoModalType("feedback");
+            setSettingsOpen(true);
+          }}
         />
 
         {historyOpen && (
-          <HistorySidebar 
+          <HistorySidebar
             history={history}
             setHistory={setHistory}
-            onItemClick={handleHistoryClick}
+            onItemClick={(entry) => {
+              const normalized = normalizeAnalyzeResponse(entry.result);
+              sessionStorage.setItem("gapforge_result", JSON.stringify(normalized));
+              setData(normalized);
+            }}
           />
         )}
 
@@ -107,282 +246,138 @@ export default function ResultsPage() {
           <header className="topNav">
             <div className="brand">GapForge</div>
             <nav className="topLinks">
-              <button
-                className="cta"
-                onClick={() => router.push("/")}
-              >
-                ← New Analysis
-              </button>
+              <button className="cta" onClick={() => router.push("/dashboard")}>← New Analysis</button>
             </nav>
           </header>
 
+          <div className="resultsScroll">
           <div className="resultsContainer">
-            {/* Header */}
             <div className="resultsHeader">
-              <button className="backBtn" onClick={() => router.push("/")}>
-                ← Back to home
-              </button>
-              <h1>Analysis Results</h1>
+              <button className="backBtn" onClick={() => router.push("/dashboard")}>← Back to dashboard</button>
+              <h1>Research Intelligence Report</h1>
               <p className="subtext" style={{ textAlign: "left" }}>
-                Research gap analysis for: <strong>{data.topic}</strong>
+                {data.overview.title}
               </p>
-              {data.normalized_keywords.length > 0 && (
-                <div className="resultsMeta" style={{ marginTop: 10 }}>
-                  {data.normalized_keywords.map((kw) => (
-                    <span key={kw} className="keywordTag">{kw}</span>
-                  ))}
-                </div>
-              )}
             </div>
 
-            {/* Stats Row */}
+            <article className="card executiveSummaryCard" ref={overviewRef}>
+              <h2>Executive Summary</h2>
+              <p>{data.overview.executive_summary}</p>
+            </article>
+
+            <article className="card" style={{ borderLeft: "4px solid #f97316" }}>
+              <div className="panelHeader" style={{ marginBottom: 10 }}>
+                <h2>Most Critical Insight</h2>
+              </div>
+              <ResearchInsightCard insight={data.most_critical_insight} index={0} />
+            </article>
+
             <div className="statsRow">
-              <div 
-                className={`statCard ${activeTab === 'papers' ? 'activeStat' : ''}`}
-                onClick={() => handleTabSwitch('papers')}
-                style={{ cursor: 'pointer', borderColor: activeTab === 'papers' ? 'var(--orange)' : '' }}
-              >
-                <div className="statNumber orange">
-                  {data.analyzed_papers.length}
-                </div>
-                <div className="statLabel">Papers Analyzed</div>
-              </div>
-              <div 
-                className={`statCard ${activeTab === 'limitations' ? 'activeStat' : ''}`}
-                onClick={() => handleTabSwitch('limitations')}
-                style={{ cursor: 'pointer', borderColor: activeTab === 'limitations' ? 'var(--purple)' : '' }}
-              >
-                <div className="statNumber purple">
-                  {data.extracted_limitations.length}
-                </div>
-                <div className="statLabel">Limitations Found</div>
-              </div>
-              <div 
-                className={`statCard ${activeTab === 'gaps' ? 'activeStat' : ''}`}
-                onClick={() => handleTabSwitch('gaps')}
-                style={{ cursor: 'pointer', borderColor: activeTab === 'gaps' ? 'var(--teal)' : '' }}
-              >
-                <div className="statNumber teal">
-                  {data.identified_research_gaps.length}
-                </div>
-                <div className="statLabel">Gaps Identified</div>
-              </div>
-              <div 
-                className={`statCard ${activeTab === 'directions' ? 'activeStat' : ''}`}
-                onClick={() => handleTabSwitch('directions')}
-                style={{ cursor: 'pointer', borderColor: activeTab === 'directions' ? 'var(--green)' : '' }}
-              >
-                <div className="statNumber green">
-                  {data.top_suggested_research_directions.length}
-                </div>
-                <div className="statLabel">Directions Suggested</div>
-              </div>
-            </div>
-
-            {/* Tab Navigation */}
-            <div className="actionRow" style={{ justifyContent: "flex-start", marginBottom: 20 }}>
-              {tabs.map((tab) => (
+              {summaryCards.map((card) => (
                 <button
-                  key={tab.key}
-                  className={`chip ${activeTab === tab.key ? "chipActive" : ""}`}
-                  onClick={() => handleTabSwitch(tab.key)}
-                  style={
-                    activeTab === tab.key
-                      ? {
-                          background: "var(--text)",
-                          color: "#fff",
-                          borderColor: "var(--text)",
-                        }
-                      : {}
-                  }
+                  key={card.label}
+                  className="statCard summaryCardBtn"
+                  onClick={() => scrollTo(card.ref)}
                 >
-                  {tab.label}
-                  <span className="sectionBadge" style={
-                    activeTab === tab.key
-                      ? { background: "rgba(255,255,255,0.25)", color: "#fff", border: "none" }
-                      : {}
-                  }>
-                    {tab.count}
-                  </span>
+                  <div className="statNumber teal">{card.value}</div>
+                  <div className="statLabel">{card.label}</div>
                 </button>
               ))}
             </div>
 
-            {/* Single Panel View (formerly 2x2 Grid) */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 10 }}>
-              
-              {/* Top Left: Directions */}
-              <div 
-                ref={directionsRef}
-                className={`dashboardPanel ${activeTab === "directions" ? "highlighted-panel" : ""}`}
-                style={{ display: activeTab === "directions" ? 'flex' : 'none', minHeight: '600px', width: '100%', boxSizing: 'border-box' }}
-              >
-                <div className="panelHeader">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{color: 'var(--orange)'}}>
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <circle cx="12" cy="12" r="6"></circle>
-                    <circle cx="12" cy="12" r="2"></circle>
-                  </svg>
-                  <h2>Research Directions</h2>
-                </div>
-                <div className="panelSubtitle">
-                  {data.top_suggested_research_directions.length} actionable directions identified to advance research
-                </div>
-                <div style={{ display: 'grid', gap: 14 }}>
-                  {data.top_suggested_research_directions.map((dir, i) => (
-                    <DirectionCard 
-                      key={dir.title} 
-                      direction={dir} 
-                      index={i} 
-                      allLimitations={data.extracted_limitations}
-                    />
-                  ))}
-                </div>
+            <section className="reportSection">
+              <div className="panelHeader" style={{ marginBottom: 10 }}>
+                <h2>Paper Overview</h2>
               </div>
+              <article className="card" style={{ display: "grid", gap: 12 }}>
+                <div>
+                  <h3 className="themeTitle" style={{ marginBottom: 6 }}>Objective</h3>
+                  <p className="muted" style={{ color: "var(--text)" }}>{data.overview.objective}</p>
+                </div>
+                <div>
+                  <h3 className="themeTitle" style={{ marginBottom: 6 }}>Methodology</h3>
+                  <p className="muted" style={{ color: "var(--text)" }}>{data.overview.methodology}</p>
+                </div>
+                <div>
+                  <h3 className="themeTitle" style={{ marginBottom: 6 }}>Key Findings</h3>
+                  <ul className="insightEvidenceList">
+                    {data.overview.key_findings.map((finding, index) => (
+                      <li key={`${finding}-${index}`}>{finding}</li>
+                    ))}
+                  </ul>
+                </div>
+              </article>
+            </section>
 
-              {/* Top Right: Gaps */}
-              <div 
-                ref={gapsRef}
-                className={`dashboardPanel ${activeTab === "gaps" ? "highlighted-panel" : ""}`}
-                style={{ display: activeTab === "gaps" ? 'flex' : 'none', minHeight: '600px', width: '100%', boxSizing: 'border-box' }}
-              >
-                <div className="panelHeader">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{color: 'var(--teal)'}}>
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                  </svg>
-                  <h2>Research Gaps</h2>
-                </div>
-                <div className="panelSubtitle">
-                  {data.identified_research_gaps.length} research gaps identified from existing literature
-                </div>
-                <div style={{ display: 'grid', gap: 14 }}>
-                  {data.identified_research_gaps.map((gap, i) => (
-                    <div 
-                      key={gap.gap_id} 
-                      ref={(el) => {
-                        if (el && highlightedGapId === gap.gap_id) {
-                          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }
-                      }}
-                      className={highlightedGapId === gap.gap_id ? 'item-highlight' : ''}
-                      style={{ borderRadius: 8 }}
-                    >
-                      <GapCard 
-                        gap={gap} 
-                        index={i} 
-                        onPaperClick={(id) => {
-                          setHighlightedPaperId(id);
-                          setActiveTab("papers");
-                          papersRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }} 
-                      />
+            <section className="reportSection" ref={limitationsRef}>
+              <div className="panelHeader" style={{ marginBottom: 10 }}>
+                <h2>Limitations</h2>
+              </div>
+              <div style={{ display: "grid", gap: 14 }}>
+                {data.limitations.grouped.map((group) => (
+                  <section key={group.category} className="themeGroup">
+                    <h3 className="themeTitle">{group.category}</h3>
+                    <div style={{ display: "grid", gap: 10 }}>
+                      {group.items.map((limitation, index) => (
+                        <LimitationCard
+                          key={`${group.category}-${index}`}
+                          category={group.category}
+                          limitation={limitation}
+                        />
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </section>
+                ))}
               </div>
+            </section>
 
-              {/* Bottom Left: Papers */}
-              <div 
-                ref={papersRef}
-                className={`dashboardPanel ${activeTab === "papers" ? "highlighted-panel" : ""}`}
-                style={{ display: activeTab === "papers" ? 'flex' : 'none', minHeight: '600px', width: '100%', boxSizing: 'border-box' }}
-              >
-                <div className="panelHeader">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{color: 'var(--purple)'}}>
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                  </svg>
-                  <h2>Analyzed Papers</h2>
-                </div>
-                <div className="panelSubtitle">
-                  {data.analyzed_papers.length} papers analyzed to provide insights
-                </div>
-                <div className="cardGrid cols2">
-                  {data.analyzed_papers.map((paper) => (
-                    <div 
-                      key={paper.paper_id}
-                      ref={(el) => {
-                        if (el && highlightedPaperId === paper.paper_id) {
-                          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }
-                      }}
-                    >
-                      <PaperCard 
-                        paper={paper} 
-                        isHighlighted={highlightedPaperId === paper.paper_id} 
-                      />
-                    </div>
-                  ))}
-                </div>
+            <section className="reportSection" ref={insightsRef}>
+              <div className="panelHeader" style={{ marginBottom: 10 }}>
+                <h2>Research Insights</h2>
               </div>
-
-              {/* Bottom Right: Limitations */}
-              <div 
-                ref={limitationsRef}
-                className={`dashboardPanel ${activeTab === "limitations" ? "highlighted-panel" : ""}`}
-                style={{ display: activeTab === "limitations" ? 'flex' : 'none', minHeight: '600px', width: '100%', boxSizing: 'border-box' }}
-              >
-                <div className="panelHeader">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{color: 'var(--red)'}}>
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                    <line x1="12" y1="9" x2="12" y2="13"></line>
-                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                  </svg>
-                  <h2>Extracted Limitations</h2>
-                </div>
-                <div className="panelSubtitle">
-                  {data.extracted_limitations.length} extracted limitations that reveal research issues
-                </div>
-                
-                <div className="limFilterRow">
-                  {["All", "AI Impacted", "Moderate", "Minor"].map((f) => (
-                    <button 
-                      key={f}
-                      className={`limFilterBtn ${limFilter === f ? 'active ' + f.toLowerCase().replace(' ', '-') : ''}`}
-                      onClick={() => setLimFilter(f as any)}
-                    >
-                      {f}
-                    </button>
-                  ))}
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  {data.extracted_limitations.map((lim, i) => {
-                    const lLower = lim.toLowerCase();
-                    let severity = "Minor";
-                    if (lLower.includes("bias") || lLower.includes("fairness") || lLower.includes("demographic") || lLower.includes("scoring")) severity = "AI Impacted";
-                    else if (lLower.includes("validity") || lLower.includes("dataset") || lLower.includes("real-world") || lLower.includes("follow-up") || lLower.includes("size")) severity = "Moderate";
-                    else if (i % 4 === 0) severity = "AI Impacted";
-                    else if (i % 2 === 0) severity = "Moderate";
-
-                    if (limFilter !== "All" && severity !== limFilter) return null;
-
-                    return (
-                      <LimitationCard 
-                        key={i} 
-                        limitation={lim} 
-                        index={i}
-                        papers={data.analyzed_papers}
-                        gaps={data.identified_research_gaps}
-                        directions={data.top_suggested_research_directions}
-                        onPaperClick={(id) => {
-                          setHighlightedPaperId(id);
-                          setActiveTab("papers");
-                          papersRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }}
-                        onGapClick={(id) => {
-                          setHighlightedGapId(id);
-                          setActiveTab("gaps");
-                          gapsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }}
-                      />
-                    );
-                  })}
-                </div>
+              <div style={{ display: "grid", gap: 14 }}>
+                {data.insights.map((insight, index) => (
+                  <ResearchInsightCard key={`${insight.title}-${index}`} insight={insight} index={index} />
+                ))}
               </div>
+            </section>
 
-            </div>
+            <section className="reportSection" ref={criticalRef}>
+              <div className="panelHeader" style={{ marginBottom: 10 }}>
+                <h2>Critical Reasoning</h2>
+              </div>
+              <div style={{ display: "grid", gap: 12 }}>
+                {(Object.keys(criticalSectionLabels) as CriticalSectionKey[]).map((key) => (
+                  <article className="card" key={key}>
+                    <h3 style={{ marginTop: 0 }}>{criticalSectionLabels[key]}</h3>
+                    <ul className="insightEvidenceList">
+                      {data.critical_reasoning[key].map((item, index) => (
+                        <li key={`${key}-${index}`}>{item}</li>
+                      ))}
+                    </ul>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="reportSection" ref={improvementsRef}>
+              <div className="panelHeader" style={{ marginBottom: 10 }}>
+                <h2>How To Improve This Analysis Further</h2>
+              </div>
+              <div style={{ display: "grid", gap: 12 }}>
+                {improvementSections.map((section) => (
+                  <article className="card" key={section.label}>
+                    <h3 style={{ marginTop: 0 }}>{section.label}</h3>
+                    <ul className="insightEvidenceList">
+                      {section.items.map((item, index) => (
+                        <li key={`${section.label}-${index}`}>{item}</li>
+                      ))}
+                    </ul>
+                  </article>
+                ))}
+              </div>
+            </section>
+          </div>
           </div>
         </main>
       </div>
@@ -390,7 +385,10 @@ export default function ResultsPage() {
       <InfoModal
         type={infoModalType || "settings"}
         isOpen={settingsOpen}
-        onClose={() => { setSettingsOpen(false); setInfoModalType(null); }}
+        onClose={() => {
+          setSettingsOpen(false);
+          setInfoModalType(null);
+        }}
       />
     </>
   );

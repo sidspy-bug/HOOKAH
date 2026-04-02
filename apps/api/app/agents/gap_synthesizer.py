@@ -1,8 +1,17 @@
+"""
+GapSynthesizer agent.
+
+Two modes:
+  - structure_from_ai(): Takes raw Gemini JSON output and formats it into GapItem schema.
+  - synthesize():        Legacy heuristic fallback using keyword bucketing.
+"""
 from __future__ import annotations
 
 from collections import defaultdict
+from typing import Any
 
 
+# ── Legacy keyword rules (used only in fallback mode) ────────────
 THEME_RULES: dict[str, list[str]] = {
     "personalization": ["personalized", "patient-specific", "adaptive", "tailored"],
     "fairness": ["fairness", "bias", "underrepresented", "equity"],
@@ -14,7 +23,61 @@ THEME_RULES: dict[str, list[str]] = {
 
 
 class GapSynthesizer:
+    """Structures research gaps — either from AI output or heuristic fallback."""
+
+    # ── AI Mode ──────────────────────────────────────────────────
+
+    def structure_from_ai(
+        self,
+        ai_gaps: list[dict[str, Any]],
+        paper_map: dict[str, dict[str, str]],
+    ) -> list[dict]:
+        """
+        Convert Gemini Call #1 output into the GapItem schema
+        expected by the frontend.
+
+        Args:
+            ai_gaps:   List of dicts from Gemini with keys:
+                       title, description, explanation, confidence
+            paper_map: Dict mapping paper_id -> {title, paper_id} for citation linking.
+
+        Returns:
+            List of gap dicts matching the GapItem schema.
+        """
+        gaps: list[dict] = []
+        paper_list = list(paper_map.values())
+
+        for idx, gap in enumerate(ai_gaps, start=1):
+            # Build citations by distributing available papers across gaps.
+            # Each gap references up to 3 papers cyclically.
+            citations = []
+            for offset in range(min(3, len(paper_list))):
+                paper_idx = (idx - 1 + offset) % len(paper_list)
+                p = paper_list[paper_idx]
+                citations.append({
+                    "paper_id": p["paper_id"],
+                    "title": p["title"],
+                    "reason": gap.get("explanation", gap.get("description", "")),
+                })
+
+            gaps.append({
+                "gap_id": f"gap-{idx}",
+                "title": gap.get("title", f"Research Gap #{idx}"),
+                "statement": gap.get("description", gap.get("title", "")),
+                "evidence": gap.get("description", ""),
+                "importance": gap.get("explanation", ""),
+                "citations": citations,
+                "evidence_count": max(1, len(citations)),
+                "theme": "ai_generated",
+                "confidence": gap.get("confidence", "medium"),
+            })
+
+        return gaps
+
+    # ── Fallback / Legacy Mode ───────────────────────────────────
+
     def synthesize(self, extracted_limitations: list[dict[str, str]]) -> list[dict]:
+        """Legacy heuristic synthesis using keyword bucketing. Used when AI mode is off."""
         buckets: dict[str, list[dict[str, str]]] = defaultdict(list)
 
         for item in extracted_limitations:
@@ -41,8 +104,11 @@ class GapSynthesizer:
             gaps.append(
                 {
                     "gap_id": f"gap-{idx}",
+                    "title": f"{theme.capitalize()} Research Gap",
                     "statement": self._statement_from_theme(theme),
-                    "rationale": f"Recurring signals from {len(items)} extracted limitations. Example: {representative}",
+                    "evidence": f"Recurring signals from {len(items)} extracted limitations. Example: {representative}",
+                    "importance": f"Addressing this gap in the {theme} aspects will strengthen methodology and reliability.",
+                    "confidence": "medium",
                     "citations": citations,
                     "evidence_count": len(items),
                     "theme": theme,

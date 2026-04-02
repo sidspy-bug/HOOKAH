@@ -1,5 +1,3 @@
-import { useRouter } from "next/router";
-
 type SidebarProps = {
   onToggleHistory?: () => void;
   onOpenSettings?: () => void;
@@ -8,8 +6,6 @@ type SidebarProps = {
 };
 
 export default function Sidebar({ onToggleHistory, onOpenSettings, onOpenFeedback, onOpenAgents }: SidebarProps) {
-  const router = useRouter();
-
   return (
     <aside className="leftRail" aria-label="Sidebar">
       {/* Menu / History toggle */}
@@ -29,7 +25,7 @@ export default function Sidebar({ onToggleHistory, onOpenSettings, onOpenFeedbac
       <button
         className="railBtn"
         title="New analysis"
-        onClick={() => window.location.href = "/"}
+        onClick={() => window.location.href = "/dashboard"}
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <line x1="12" y1="5" x2="12" y2="19" />

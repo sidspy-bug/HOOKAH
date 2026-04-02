@@ -52,7 +52,7 @@ export default function HistorySidebar({ history, setHistory, onItemClick }: His
       localStorage.setItem("gapforge_history", JSON.stringify(newHistory));
       
       if (currentResultString && currentResultString === deletedResultString) {
-         window.location.href = "/";
+         window.location.href = "/dashboard";
       }
     }
   };
