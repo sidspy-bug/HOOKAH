@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import React, { useEffect, useState, useMemo } from 'react';
+import { HowItWorksFlow } from '../components/HowItWorksFlow';
 
 const MATH_EQUATIONS = [
   "E = mc²", "∇ × E = -∂B/∂t", "iℏ∂ψ/∂t = Ĥψ", "S = k log W", 
@@ -88,31 +89,7 @@ export default function LandingPage() {
           </section>
 
           {showHowItWorks && (
-            <section id="how-it-works" className="bentoGrid" style={{ animation: "slideDown 0.4s ease-out forwards" }}>
-            <div className="bentoCard large">
-              <div className="featureIcon">📄</div>
-              <h3>1. Feed Data at Scale</h3>
-              <p className="subtext" style={{margin: 0}}>Upload PDFs, scrape direct from arXiv, or link your Mendeley library. Our Paper Analyst agent aggressively filters through noise to find only relevant methodology.</p>
-            </div>
-            
-            <div className="bentoCard">
-              <div className="featureIcon">🔍</div>
-              <h3>2. Extract Limitations</h3>
-              <p className="subtext" style={{margin: 0}}>The core AI engine reads conclusion sections, extracting stated weaknesses, technical limitations, and future work explicitly cited by authors.</p>
-            </div>
-
-            <div className="bentoCard">
-              <div className="featureIcon">✨</div>
-              <h3>3. Map The Gaps</h3>
-              <p className="subtext" style={{margin: 0}}>Discover aggregated clusters of overlapping limitations that reveal entirely under-researched domains and blind spots.</p>
-            </div>
-
-            <div className="bentoCard large">
-              <div className="featureIcon">🚀</div>
-              <h3>4. Generate Project Scopes</h3>
-              <p className="subtext" style={{margin: 0}}>Automatically rank gap candidates by feasibility, novelty, and impact. Finally, generate step-by-step hypothesis approaches to tackle them.</p>
-            </div>
-          </section>
+            <HowItWorksFlow />
           )}
         </main>
 

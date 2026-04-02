@@ -2164,3 +2164,155 @@ h1 {
     font-size: 3rem;
   }
 }
+
+/* ── How It Works Flowchart ─────────────────────────── */
+
+.flowContainer {
+  margin-top: 40px;
+  width: 100%;
+  padding: 40px 20px;
+  background: transparent;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  position: relative;
+  overflow: hidden;
+}
+
+.flowSvg {
+  width: 100%;
+  height: auto;
+  min-height: 400px;
+  display: block;
+}
+
+.flowNodeContainer {
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.flowNodeContainer:hover {
+  transform: scale(1.05);
+}
+
+.flowNodeRect {
+  fill: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  stroke: var(--line);
+  stroke-width: 2px;
+  rx: 16px;
+  ry: 16px;
+  transition: all 0.3s ease;
+}
+
+.flowNodeContainer:hover .flowNodeRect {
+  stroke: var(--orange);
+  filter: drop-shadow(0 0 12px var(--orange-glow));
+}
+
+.flowIconOuter {
+  fill: var(--orange-glow);
+  rx: 12px;
+}
+
+.flowTitle {
+  font-weight: 700;
+  font-size: 1.1rem;
+  fill: var(--text);
+}
+
+.flowDesc {
+  font-size: 0.9rem;
+  fill: var(--muted);
+}
+
+.flowPath {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 3px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawLine 1.5s ease-out forwards;
+}
+
+@keyframes drawLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.flowDataParticle {
+  fill: var(--orange);
+  filter: drop-shadow(0 0 4px var(--orange-glow));
+}
+
+.particleAnim {
+  offset-path: path(var(--path-d));
+  animation: moveParticle 3s linear infinite;
+}
+
+@keyframes moveParticle {
+  0% { offset-distance: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+
+.nodeEntrance {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: nodeFadeIn 0.6s ease-out forwards;
+}
+
+@keyframes nodeFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .flowSvg {
+    display: none; /* Hide SVG on mobile and show simple vertical stack */
+  }
+  
+  .mobileFlow {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+  }
+  
+  .mobileNode {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(4px);
+    padding: 24px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    width: 100%;
+    text-align: left;
+    position: relative;
+  }
+  
+  .mobileNode::after {
+    content: '↓';
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5rem;
+    color: var(--muted);
+  }
+  
+  .mobileNode:last-child::after {
+    display: none;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobileFlow {
+    display: none;
+  }
+}
